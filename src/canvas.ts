@@ -1,32 +1,26 @@
-const {pair} = require('./pair');
-const Piece = require('./piece').default;
-const Puzzle = require('./puzzle');
-const Manufacturer = require('./manufacturer').default;
-const {twoAndTwo} = require('./sequence');
-const structure = require('./structure').default;
-const ImageMetadata = require('./image-metadata');
-const vector = require('./vector').default;
-const Metadata = require('./metadata');
-const SpatialMetadata = require('./spatial-metadata');
-const {PuzzleValidator, PieceValidator} = require('./validator');
-const {Horizontal, Vertical} = require('./axis');
-const Shuffler = require('./shuffler');
-const {diameter} = require('./size');
-const {itself} = require('./prelude');
-const {Classic} = require('./outline');
+import Piece from './piece';
+import Manufacturer from './manufacturer';
+import { twoAndTwo } from './sequence';
+import structure, { StructureLike } from './structure';
+import vector, { Vector } from './vector';
+import { PuzzleValidator, PieceValidator } from './validator';
+import { Horizontal, Vertical } from './axis';
+import { Size, diameter } from './size';
+import { itself } from './prelude';
+import { Classic } from './outline';
+import { ImageLike } from './image-metadata';
+import Painter from './painter';
 
-/**
- * @typedef {object} Shape
- * @typedef {object} Group
- * @typedef {object} Label
- */
 
-/**
- * @typedef {object} Figure
- * @property {Shape} shape
- * @property {Group} group
- * @property {Label} [label]
- */
+export type Shape = object;
+export type Group = object;
+export type Label = object;
+
+export interface Figure {
+  shape: Shape;
+  group: Group;
+  label?: Label;
+}
 
 /**
  * @callback CanvasConnectionListener
@@ -55,19 +49,19 @@ const {Classic} = require('./outline');
 /**
  * @typedef {object} CanvasMetadata
  * @property {string} [id]
- * @property {import('./vector').Vector} [targetPosition]
- * @property {import('./vector').Vector} [currentPosition]
+ * @property {Vector} [targetPosition]
+ * @property {Vector} [currentPosition]
  * @property {string} [color]
  * @property {boolean} [fixed]
  * @property {string} [strokeColor]
- * @property {import('./image-metadata').ImageLike} [image]
+ * @property {ImageLike} [image]
  * @property {LabelMetadata} [label]
  */
 
 /**
  * @typedef {object} Template
- * @property {import('./structure').StructureLike} structure
- * @property {import('./size').Size} [size]
+ * @property {StructureLike} structure
+ * @property {Size} [size]
  * @property {CanvasMetadata} metadata
  */
 
@@ -75,35 +69,52 @@ const {Classic} = require('./outline');
   * An HTML graphical area where puzzles and pieces can be rendered. No assumption of the rendering backend is done - it may be
   * and be a plain HTML SVG or canvas element, or a higher-level library - and this task is fully delegated to {@link Painter}
   */
-class Canvas {
-
-  /**
-   * @private
-   * @typedef {import('./painter')} Painter
-   */
+export default class Canvas {
+  width: number;
+  height: number;
+  pieceSize: Size;
+  borderFill: Vector;
+  imageMetadata: any;
+  strokeWidth: number;
+  strokeColor: string;
+  lineSoftness: number;
+  preventOffstageDrag: boolean;
+  proximity: number;
+  fixed: boolean;
+  _painter: any;
+  _maxPiecesCount: Vector;
+  _puzzleDiameter: Vector;
+  _imageAdjuster: <A>(arg: A) => A;
+  _outline: any;
+  _puzzle: null;
+  figures: {};
+  templates: {};
+  _figurePadding: null;
+  _drawn: boolean;
+  autoconnected: boolean;
 
   /**
    * @param {string} id  the html id of the element where to place the canvas
    * @param {object} options
    * @param {number} options.width
    * @param {number} options.height
-   * @param {import('./vector').Vector|number} [options.pieceSize] the piece size expresed as it edge-to-edge diameter
+   * @param {Vector|number} [options.pieceSize] the piece size expresed as it edge-to-edge diameter
    * @param {number} [options.proximity]
-   * @param {import('./vector').Vector|number} [options.borderFill] the broder fill of the pieces, expresed in pixels. 0 means no border fill, 0.5 * pieceSize means full fill
+   * @param {Vector|number} [options.borderFill] the broder fill of the pieces, expresed in pixels. 0 means no border fill, 0.5 * pieceSize means full fill
    * @param {number} [options.strokeWidth]
    * @param {string} [options.strokeColor]
    * @param {number} [options.lineSoftness] how soft the line will be
    * @param {boolean} [options.preventOffstageDrag] whether dragging out of canvas is prevented
-   * @param {import('./image-metadata').ImageLike} [options.image] an optional background image for the puzzle that will be split across all pieces.
+   * @param {ImageLike} [options.image] an optional background image for the puzzle that will be split across all pieces.
    * @param {boolean} [options.fixed] whether the canvas can is fixed or can be dragged
    * @param {Painter} [options.painter] the Painter object used to actually draw figures in canvas
-   * @param {import('./vector').Vector|number} [options.puzzleDiameter] the puzzle diameter used to calculate the maximal width and height
+   * @param {Vector|number} [options.puzzleDiameter] the puzzle diameter used to calculate the maximal width and height
    *                                                                    You only need to specify this option when pieces are manually sketched and images must be adjusted
-   * @param {import('./vector').Vector|number} [options.maxPiecesCount] the maximal amount of pieces used to calculate the maximal width and height.
+   * @param {Vector|number} [options.maxPiecesCount] the maximal amount of pieces used to calculate the maximal width and height.
    *                                                                    You only need to specify this option when pieces are manually sketched and images must be adjusted
    * @param {import('./outline').Outline} [options.outline]
    */
-  constructor(id, {
+  constructor(id: string, {
       width,
       height,
       pieceSize = 50,
@@ -119,7 +130,7 @@ class Canvas {
       puzzleDiameter = null,
       maxPiecesCount = null,
       outline = null
-    }) {
+    }: { width: number; height: number; pieceSize?: Vector | number; proximity?: number; borderFill?: Vector | number; strokeWidth?: number; strokeColor?: string; lineSoftness?: number; preventOffstageDrag?: boolean; image?: ImageLike; fixed?: boolean; painter?: Painter; puzzleDiameter?: Vector | number; maxPiecesCount?: Vector | number; outline?: import('./outline').Outline; }) {
     this.width = width;
     this.height = height;
     this.pieceSize = diameter(pieceSize);
@@ -135,9 +146,9 @@ class Canvas {
     this._painter = painter || new window['headbreaker']['painters']['Konva']();
     this._initialize();
     this._painter.initialize(this, id);
-    /** @type {import('./vector').Vector} */
+    /** @type {Vector} */
     this._maxPiecesCount = vector.cast(maxPiecesCount);
-    /** @type {import('./vector').Vector} */
+    /** @type {Vector} */
     this._puzzleDiameter = vector.cast(puzzleDiameter);
     /** @type {(image: import('./image-metadata').ImageMetadata) => import('./image-metadata').ImageMetadata} */
     this._imageAdjuster = itself;
@@ -151,7 +162,7 @@ class Canvas {
     this.figures = {};
     /** @type {Object<string, Template>} */
     this.templates = {};
-    /** @type {import('./vector').Vector} */
+    /** @type {Vector} */
     this._figurePadding = null;
     this._drawn = false;
   }
@@ -161,7 +172,7 @@ class Canvas {
    *
    * @param {Template} options
    */
-  sketchPiece({structure, size = null, metadata}) {
+  sketchPiece({structure, size = null, metadata}: Template) {
     SpatialMetadata.initialize(metadata, vector.zero())
     this.renderPiece(this._newPiece(structure, size, metadata));
   }
@@ -171,15 +182,15 @@ class Canvas {
    *
    * @param {Piece} piece
    */
-  renderPiece(piece) {
+  renderPiece(piece: Piece) {
     /** @type {Figure} */
-    const figure = {label: null, group: null, shape: null};
+    const figure: Figure = {label: null, group: null, shape: null};
     this.figures[piece.metadata.id] = figure;
 
     this._painter.sketch(this, piece, figure, this._outline);
 
     /** @type {LabelMetadata} */
-    const label = piece.metadata.label;
+    const label: LabelMetadata = piece.metadata.label;
     if (label && label.text) {
       label.fontSize = label.fontSize || piece.diameter.y * 0.55;
       label.y = label.y || (piece.diameter.y - label.fontSize) / 2;
@@ -195,7 +206,7 @@ class Canvas {
    *
    * @param {Piece[]} pieces
    */
-  renderPieces(pieces) {
+  renderPieces(pieces: Piece[]) {
     pieces.forEach((it) => {
       this._annotatePiecePosition(it);
       this.renderPiece(it);
@@ -208,7 +219,7 @@ class Canvas {
    *
    * @param {Puzzle} puzzle
    */
-  renderPuzzle(puzzle) {
+  renderPuzzle(puzzle: Puzzle) {
     this.pieceSize = puzzle.pieceSize;
     this.proximity = puzzle.proximity * 2;
     this._puzzle = puzzle;
@@ -224,7 +235,7 @@ class Canvas {
    * @param {import('./sequence').InsertsGenerator} [options.insertsGenerator]
    * @param {CanvasMetadata[]} [options.metadata] optional list of metadata that will be attached to each generated piece
    */
-  autogenerate({horizontalPiecesCount = 5, verticalPiecesCount = 5, insertsGenerator = twoAndTwo, metadata = []} = {}) {
+  autogenerate({horizontalPiecesCount = 5, verticalPiecesCount = 5, insertsGenerator = twoAndTwo, metadata = []}: { horizontalPiecesCount?: number; verticalPiecesCount?: number; insertsGenerator?: import('./sequence').InsertsGenerator; metadata?: CanvasMetadata[]; } = {}) {
     const manufacturer = new Manufacturer();
     manufacturer.withDimensions(horizontalPiecesCount, verticalPiecesCount);
     manufacturer.withInsertsGenerator(insertsGenerator);
@@ -235,7 +246,7 @@ class Canvas {
   /**
    * @param {Manufacturer} manufacturer
    */
-  autogenerateWithManufacturer(manufacturer) {
+  autogenerateWithManufacturer(manufacturer: Manufacturer) {
     manufacturer.withStructure(this.settings);
     this._puzzle = manufacturer.build();
     this._maxPiecesCount = vector(manufacturer.width, manufacturer.height);
@@ -248,7 +259,7 @@ class Canvas {
    * @param {string} name
    * @param {Template} template
    */
-  defineTemplate(name, template) {
+  defineTemplate(name: string, template: Template) {
     this.templates[name] = template;
   }
 
@@ -259,7 +270,7 @@ class Canvas {
    * @param {string} id
    * @param {string} templateName
    */
-  sketchPieceUsingTemplate(id, templateName) {
+  sketchPieceUsingTemplate(id: string, templateName: string) {
     const options = this.templates[templateName];
     if (!options) {
       throw new Error(`Unknown template ${id}`);
@@ -272,7 +283,7 @@ class Canvas {
   /**
    * @param {number} farness from 0 to 1, how far pieces will be placed from x = pieceDiameter.x, y = pieceDiameter.y
    */
-  shuffle(farness = 1) {
+  shuffle(farness: number = 1) {
     const offset = this.pieceRadius;
     this.puzzle.shuffle(farness * (this.width - offset.x), farness * (this.height - offset.y))
     this.puzzle.translate(offset.x, offset.y);
@@ -284,7 +295,7 @@ class Canvas {
    *
    * @param {number} farness
    */
-  shuffleColumns(farness = 1) {
+  shuffleColumns(farness: number = 1) {
     this.shuffleWith(farness, Shuffler.columns);
   }
 
@@ -293,7 +304,7 @@ class Canvas {
    *
    * @param {number} farness
    */
-  shuffleGrid(farness = 1) {
+  shuffleGrid(farness: number = 1) {
     this.shuffleWith(farness, Shuffler.grid);
   }
 
@@ -303,7 +314,7 @@ class Canvas {
    *
    * @param {number} farness
    */
-  shuffleLine(farness = 1) {
+  shuffleLine(farness: number = 1) {
     this.shuffleWith(farness, Shuffler.line);
   }
 
@@ -312,7 +323,7 @@ class Canvas {
    * @param {number} farness
    * @param {import('./shuffler').Shuffler} shuffler
    */
-  shuffleWith(farness, shuffler) {
+  shuffleWith(farness: number, shuffler: import('./shuffler').Shuffler) {
     this.solve();
     this.puzzle.shuffleWith(Shuffler.padder(this.proximity * 3, this.maxPiecesCount.x, this.maxPiecesCount.y));
     this.puzzle.shuffleWith(shuffler)
@@ -354,7 +365,7 @@ class Canvas {
    *
    * @param {object} gestures
    */
-  registerKeyboardGestures(gestures = {
+  registerKeyboardGestures(gestures: object = {
     16: (puzzle) => puzzle.forceConnectionWhileDragging(),
     17: (puzzle) => puzzle.forceDisconnectionWhileDragging()
   }) {
@@ -415,7 +426,7 @@ class Canvas {
    *
    * @param {import('./connector').ConnectionRequirement} requirement
    */
-  attachConnectionRequirement(requirement) {
+  attachConnectionRequirement(requirement: import('./connector').ConnectionRequirement) {
     this.puzzle.attachConnectionRequirement(requirement);
   }
 
@@ -433,7 +444,7 @@ class Canvas {
    *
    * @param {import('./validator').Validator} validator
    */
-  attachValidator(validator) {
+  attachValidator(validator: import('./validator').Validator) {
     this.puzzle.attachValidator(validator);
   }
 
@@ -459,7 +470,7 @@ class Canvas {
    *
    * @param {[number, number][]} expected
    */
-  attachRelativeRefsValidator(expected) {
+  attachRelativeRefsValidator(expected: [number, number][]) {
     this.puzzle.attachValidator(new PuzzleValidator(PuzzleValidator.relativeRefs(expected)));
   }
 
@@ -476,7 +487,7 @@ class Canvas {
    *
    * @param {CanvasConnectionListener} f
    */
-  onConnect(f) {
+  onConnect(f: CanvasConnectionListener) {
     this.puzzle.onConnect((piece, target) => {
       f(piece, this.getFigure(piece), target, this.getFigure(target));
     });
@@ -487,7 +498,7 @@ class Canvas {
    *
    * @param {CanvasConnectionListener} f
    */
-  onDisconnect(f) {
+  onDisconnect(f: CanvasConnectionListener) {
     this.puzzle.onDisconnect((piece, target) => {
       f(piece, this.getFigure(piece), target, this.getFigure(target));
     });
@@ -496,7 +507,7 @@ class Canvas {
   /**
    * @param {CanvasTranslationListener} f
    */
-  onTranslate(f) {
+  onTranslate(f: CanvasTranslationListener) {
     this.puzzle.onTranslate((piece, dx, dy) => {
       f(piece, this.getFigure(piece), dx, dy);
     });
@@ -521,7 +532,7 @@ class Canvas {
   /**
    * @param {import('./validator').ValidationListener} f
    */
-  onValid(f) {
+  onValid(f: import('./validator').ValidationListener) {
     this.puzzle.onValid(f);
   }
 
@@ -541,7 +552,7 @@ class Canvas {
    * @param {Piece} piece
    * @returns {Figure}
    */
-  getFigure(piece) {
+  getFigure(piece: Piece): Figure {
     return this.getFigureById(piece.metadata.id);
   }
 
@@ -551,7 +562,7 @@ class Canvas {
    * @param {string} id
    * @returns {Figure}
    */
-  getFigureById(id) {
+  getFigureById(id: string): Figure {
     return this.figures[id];
   }
 
@@ -561,7 +572,7 @@ class Canvas {
    * @param {number} width
    * @param {number} height
    */
-  resize(width, height) {
+  resize(width: number, height: number) {
     this.width = width;
     this.height = height;
     this._painter.resize(this, width, height);
@@ -569,16 +580,16 @@ class Canvas {
 
   /**
    * Scales the canvas contents to the given factor
-   * @param {import('./vector').Vector|number} factor
+   * @param {Vector|number} factor
    */
-  scale(factor) {
+  scale(factor: Vector | number) {
     this._painter.scale(this, vector.cast(factor));
   }
 
   /**
    * @param {Piece} piece
    */
-  _annotatePiecePosition(piece) {
+  _annotatePiecePosition(piece: Piece) {
     const p = piece.centralAnchor.asVector();
     SpatialMetadata.initialize(piece.metadata, p, vector.copy(p));
   }
@@ -588,7 +599,7 @@ class Canvas {
    * @param {Group} group
    * @param {Piece} piece
    */
-  _bindGroupToPiece(group, piece) {
+  _bindGroupToPiece(group: Group, piece: Piece) {
     piece.onTranslate((_dx, _dy) => {
       this._painter.physicalTranslate(this, group, piece);
       this._painter.logicalTranslate(this, piece, group);
@@ -600,7 +611,7 @@ class Canvas {
    * @param {Piece} piece
    * @param {Group} group
    */
-  _bindPieceToGroup(piece, group) {
+  _bindPieceToGroup(piece: Piece, group: Group) {
     this._painter.onDrag(this, piece, group, (dx, dy) => {
       if (!pair.isNull(dx, dy)) {
         piece.drag(dx, dy, true);
@@ -619,7 +630,7 @@ class Canvas {
    * @param {Piece} piece
    * @returns {import('./image-metadata').ImageMetadata}
    */
-  _baseImageMetadataFor(piece) {
+  _baseImageMetadataFor(piece: Piece): import('./image-metadata').ImageMetadata {
     if (this.imageMetadata) {
       const scale = piece.metadata.scale || this.imageMetadata.scale || 1;
       const offset = vector.plus(
@@ -636,7 +647,7 @@ class Canvas {
    *
    * @returns {import('./image-metadata').ImageMetadata}
    */
-  imageMetadataFor(piece) {
+  imageMetadataFor(piece: Piece): import('./image-metadata').ImageMetadata {
     return this._imageAdjuster(this._baseImageMetadataFor(piece));
   }
 
@@ -647,7 +658,7 @@ class Canvas {
    *
    * @param {import('./axis').Axis} axis
    */
-  adjustImagesToPuzzle(axis) {
+  adjustImagesToPuzzle(axis: import('./axis').Axis) {
     this._imageAdjuster = (image) => {
       const scale = axis.atVector(this.puzzleDiameter) / axis.atDimension(image.content);
       const offset = vector.plus(image.offset, vector.minus(this.borderFill, this.pieceDiameter));
@@ -680,7 +691,7 @@ class Canvas {
    *
    * @param {import('./axis').Axis} axis
    */
-  adjustImagesToPiece(axis) {
+  adjustImagesToPiece(axis: import('./axis').Axis) {
     this._imageAdjuster = (image) => {
       const scale = axis.atVector(this.pieceDiameter) / axis.atDimension(image.content);
       const offset = vector.plus(image.offset, this.borderFill);
@@ -712,11 +723,11 @@ class Canvas {
   }
 
   /**
-   * @param {import('./structure').StructureLike} structureLike the piece structure
-   * @param {import('./size').Size} size
+   * @param {StructureLike} structureLike the piece structure
+   * @param {Size} size
    * @param {CanvasMetadata} metadata
    */
-  _newPiece(structureLike, size, metadata) {
+  _newPiece(structureLike: StructureLike, size: Size, metadata: CanvasMetadata) {
     let piece = this.puzzle.newPiece(
       structure.asStructure(structureLike),
       { centralAnchor: vector(metadata.currentPosition.x, metadata.currentPosition.y), metadata, size });
@@ -727,7 +738,7 @@ class Canvas {
    * The puzzle diameter, using the
    * configured puzzle diameter or the estimated one, if the first is not available.
    *
-   * @type {import('./vector').Vector}
+   * @type {Vector}
    * */
   get puzzleDiameter() {
     return this._puzzleDiameter || this.estimatedPuzzleDiameter;
@@ -736,7 +747,7 @@ class Canvas {
   /**
    * The estimated puzzle diameter calculated using the the max pieces count.
    *
-   * @type {import('./vector').Vector}
+   * @type {Vector}
    * */
   get estimatedPuzzleDiameter() {
     return vector.plus(vector.multiply(this.pieceDiameter, this.maxPiecesCount), this.strokeWidth * 2)
@@ -750,21 +761,21 @@ class Canvas {
   }
 
   /**
-   * @type {import('./vector').Vector}
+   * @type {Vector}
    */
   get pieceRadius() {
     return this.pieceSize.radius;
   }
 
   /**
-   * @type {import('./vector').Vector}
+   * @type {Vector}
    */
   get pieceDiameter() {
     return this.pieceSize.diameter;
   }
 
   /**
-   * @type {import('./vector').Vector}
+   * @type {Vector}
    */
   get figurePadding() {
     if (!this._figurePadding) {
@@ -799,5 +810,3 @@ class Canvas {
     return {pieceRadius: this.pieceRadius, proximity: this.proximity}
   }
 }
-
-module.exports = Canvas
