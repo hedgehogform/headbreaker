@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function () {
         figure.shape.stroke('black');
         targetFigure.shape.stroke('black');
         sound.redraw();
-      }, 100);
+      }, 200);
     });
     sound.onDisconnect(function () {
       audio.play();

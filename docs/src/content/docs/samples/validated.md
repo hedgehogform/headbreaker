@@ -38,7 +38,7 @@ pettoruti.onload = () => {
 
 <div style="position:relative">
   <div id="validated-canvas" class="demo-canvas"></div>
-  <img id="validated-canvas-overlay" src="/headbreaker/static/pettoruti.jpg" alt="Solved puzzle" />
+  <img id="validated-canvas-overlay" src="/headbreaker/static/pettoruti.jpg" alt="Puzzle completion overlay showing the solved artwork" />
 </div>
 <div class="demo-buttons">
   <button id="validated-shuffle">Shuffle</button>
