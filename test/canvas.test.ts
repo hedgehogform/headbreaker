@@ -36,7 +36,7 @@ describe("Canvas", () => {
 
     expect(canvas._nullLayer!.figures).toBe(1);
     expect(canvas._nullLayer!.drawn).toBe(true);
-    expect(!!canvas.figures[1 as any]).toBe(false);
+    expect(!!canvas.figures[1]).toBe(false);
     expect(!!canvas.figures["a"]).toBe(true);
     expect(canvas.puzzle.pieces.length).toBe(1);
     expect(canvas.puzzle.head.centralAnchor).toEqual({ x: 50, y: 50 });
@@ -228,7 +228,7 @@ describe("Canvas", () => {
 
     expect(canvas._nullLayer!.figures).toBe(16);
     expect(canvas._nullLayer!.drawn).toBe(true);
-    expect(!!canvas.figures[0 as any]).toBe(false);
+    expect(!!canvas.figures[0]).toBe(false);
     expect(!!canvas.figures["1"]).toBe(true);
     expect(!!canvas.figures["16"]).toBe(true);
     expect(!!canvas.figures["17"]).toBe(false);
