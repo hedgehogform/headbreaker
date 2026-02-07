@@ -4,6 +4,8 @@ description: Automatically generate puzzle pieces from an image.
 draft: false
 ---
 
+import DemoScript from '../../../components/DemoScript.astro';
+
 ## Code
 
 ```javascript
@@ -36,7 +38,7 @@ xul.onload = () => {
   <button id="autogen-solve">Solve</button>
 </div>
 
-<script>
+<DemoScript code={`
 document.addEventListener('DOMContentLoaded', function () {
   function onClick(id, handler) {
     var el = document.getElementById(id);
@@ -66,4 +68,4 @@ document.addEventListener('DOMContentLoaded', function () {
     registerButtons('autogen', autogen);
   };
 });
-</script>
+`} />

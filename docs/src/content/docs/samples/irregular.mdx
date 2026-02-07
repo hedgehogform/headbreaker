@@ -4,6 +4,8 @@ description: Puzzle with pieces of different sizes.
 draft: false
 ---
 
+import DemoScript from '../../../components/DemoScript.astro';
+
 ## Code
 
 ```javascript
@@ -35,9 +37,9 @@ irregular.draw();
 
 <div id="irregular-canvas" class="demo-canvas"></div>
 
-<script>
+<DemoScript code={`
 document.addEventListener('DOMContentLoaded', function () {
-  const irregular = new headbreaker.Canvas('irregular-canvas', {
+  var irregular = new headbreaker.Canvas('irregular-canvas', {
     proximity: 25,
     width: 500, height: 300,
     outline: new headbreaker.outline.Rounded()
@@ -80,4 +82,4 @@ document.addEventListener('DOMContentLoaded', function () {
   irregular.shuffle(0.7);
   irregular.draw();
 });
-</script>
+`} />

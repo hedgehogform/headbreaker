@@ -4,6 +4,8 @@ description: Export and import puzzle state as JSON.
 draft: false
 ---
 
+import DemoScript from '../../../components/DemoScript.astro';
+
 ## Code
 
 ```javascript
@@ -58,7 +60,7 @@ document.getElementById('persistent-export').addEventListener('click', function(
   <button id="persistent-solve">Solve</button>
 </div>
 
-<script>
+<DemoScript code={`
 document.addEventListener('DOMContentLoaded', function () {
   function onClick(id, handler) {
     var el = document.getElementById(id);
@@ -95,4 +97,4 @@ document.addEventListener('DOMContentLoaded', function () {
   });
   registerButtons('persistent', persistent);
 });
-</script>
+`} />

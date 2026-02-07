@@ -4,6 +4,8 @@ description: Pieces with labels that update dynamically when connected or discon
 draft: false
 ---
 
+import DemoScript from '../../../components/DemoScript.astro';
+
 ## Code
 
 ```javascript
@@ -55,7 +57,7 @@ dynamic.draw();
 
 <div id="dynamic-canvas" class="demo-canvas"></div>
 
-<script>
+<DemoScript code={`
 document.addEventListener('DOMContentLoaded', function () {
   function updateLabel(piece, figure, delta) {
     piece.metadata.label.text = Number(piece.metadata.label.text) + delta;
@@ -90,4 +92,4 @@ document.addEventListener('DOMContentLoaded', function () {
   dynamic.shuffle(0.7);
   dynamic.draw();
 });
-</script>
+`} />

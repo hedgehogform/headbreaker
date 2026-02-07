@@ -4,6 +4,8 @@ description: Play sounds and highlight pieces when they connect or disconnect.
 draft: false
 ---
 
+import DemoScript from '../../../components/DemoScript.astro';
+
 ## Code
 
 ```javascript
@@ -60,7 +62,7 @@ berni.onload = () => {
   <button id="sound-solve">Solve</button>
 </div>
 
-<script>
+<DemoScript code={`
 document.addEventListener('DOMContentLoaded', function () {
   function onClick(id, handler) {
     var el = document.getElementById(id);
@@ -106,4 +108,4 @@ document.addEventListener('DOMContentLoaded', function () {
     registerButtons('sound', sound);
   };
 });
-</script>
+`} />

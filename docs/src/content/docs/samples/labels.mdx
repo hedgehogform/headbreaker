@@ -4,6 +4,8 @@ description: Puzzle pieces with text labels and custom connection requirements.
 draft: false
 ---
 
+import DemoScript from '../../../components/DemoScript.astro';
+
 ## Code
 
 ```javascript
@@ -48,7 +50,7 @@ labels.attachConnectionRequirement(
 
 <div id="labels-canvas" class="demo-canvas"></div>
 
-<script>
+<DemoScript code={`
 document.addEventListener('DOMContentLoaded', function () {
   var labels = new headbreaker.Canvas('labels-canvas', {
     width: 400, height: 400,
@@ -86,4 +88,4 @@ document.addEventListener('DOMContentLoaded', function () {
     return one.metadata.id.replace('-kanji', '') == other.metadata.id.replace('-emoji', '');
   });
 });
-</script>
+`} />

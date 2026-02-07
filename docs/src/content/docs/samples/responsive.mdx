@@ -4,6 +4,8 @@ description: Puzzle that automatically resizes to fit its container.
 draft: false
 ---
 
+import DemoScript from '../../../components/DemoScript.astro';
+
 ## Code
 
 ```javascript
@@ -46,7 +48,7 @@ responsive.draw();
   <button id="responsive-solve">Solve</button>
 </div>
 
-<script>
+<DemoScript code={`
 document.addEventListener('DOMContentLoaded', function () {
   function onClick(id, handler) {
     var el = document.getElementById(id);
@@ -85,4 +87,4 @@ document.addEventListener('DOMContentLoaded', function () {
   });
   registerButtons('responsive', responsive);
 });
-</script>
+`} />

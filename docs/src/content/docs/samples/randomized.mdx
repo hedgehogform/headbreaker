@@ -4,6 +4,8 @@ description: Puzzle with randomly shuffled piece positions using a flipflop gene
 draft: false
 ---
 
+import DemoScript from '../../../components/DemoScript.astro';
+
 ## Code
 
 ```javascript
@@ -28,7 +30,7 @@ dali.onload = () => {
 
 <div id="randomized-canvas" class="demo-canvas"></div>
 
-<script>
+<DemoScript code={`
 document.addEventListener('DOMContentLoaded', function () {
   var dali = new Image();
   dali.src = '/headbreaker/static/dali.jpg';
@@ -46,4 +48,4 @@ document.addEventListener('DOMContentLoaded', function () {
     randomized.draw();
   };
 });
-</script>
+`} />

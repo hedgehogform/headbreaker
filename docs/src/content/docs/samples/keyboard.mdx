@@ -4,6 +4,8 @@ description: Drag pieces individually or as a group using shift and ctrl keys.
 draft: false
 ---
 
+import DemoScript from '../../../components/DemoScript.astro';
+
 ## Code
 
 ```javascript
@@ -46,7 +48,7 @@ Try dragging pieces from the borders or the center while pressing `shift` and `c
   <button id="keyboard-solve">Solve</button>
 </div>
 
-<script>
+<DemoScript code={`
 document.addEventListener('DOMContentLoaded', function () {
   function onClick(id, handler) {
     var el = document.getElementById(id);
@@ -77,4 +79,4 @@ document.addEventListener('DOMContentLoaded', function () {
     registerButtons('keyboard', keyboard);
   };
 });
-</script>
+`} />

@@ -1,64 +1,68 @@
 ---
-title: Soft Lines
-description: Puzzle with soft, curved piece edges using lineSoftness.
+title: Basic
+description: A simple puzzle with manually placed colored pieces.
 draft: false
 ---
+
+import DemoScript from '../../../components/DemoScript.astro';
 
 ## Code
 
 ```javascript
-const soft = new headbreaker.Canvas('soft-canvas', {
-  width: 500, height: 300,
-  pieceSize: 50, proximity: 10,
-  lineSoftness: 0.2
+const basic = new headbreaker.Canvas('basic-canvas', {
+  width: 500, height: 300, pieceSize: 50, proximity: 10
 });
-soft.sketchPiece({
+basic.sketchPiece({
   structure: { right: headbreaker.Tab, down: headbreaker.Tab, left: headbreaker.Slot },
   metadata: { id: 'a', currentPosition: { x: 50, y: 50 }, color: '#B87D32' }
 });
+basic.sketchPiece({
+  structure: { up: headbreaker.Slot, right: headbreaker.Tab, down: headbreaker.Tab, left: headbreaker.Slot },
+  metadata: { id: 'b', currentPosition: { x: 100, y: 50 }, color: '#B83361' }
+});
+basic.sketchPiece({
+  structure: { up: headbreaker.Slot, right: headbreaker.Tab, down: headbreaker.Slot, left: headbreaker.Tab },
+  metadata: { id: 'g', currentPosition: { x: 100, y: 190 } }
+});
 // ... more pieces ...
-soft.draw();
+basic.draw();
 ```
 
 ## Demo
 
-<div id="soft-canvas" class="demo-canvas"></div>
+<div id="basic-canvas" class="demo-canvas"></div>
 
-<script>
+<DemoScript code={`
 document.addEventListener('DOMContentLoaded', function () {
-  const soft = new headbreaker.Canvas('soft-canvas', {
-    width: 500, height: 300,
-    pieceSize: 50, proximity: 10,
-    lineSoftness: 0.2
-  });
-  soft.sketchPiece({
+  var basic = new headbreaker.Canvas('basic-canvas', { width: 500, height: 300 });
+  basic.sketchPiece({
     structure: { right: headbreaker.Tab, down: headbreaker.Tab, left: headbreaker.Slot },
     metadata: { id: 'a', currentPosition: { x: 50, y: 50 }, color: '#B87D32' }
   });
-  soft.sketchPiece({
+  basic.sketchPiece({
     structure: { up: headbreaker.Slot, right: headbreaker.Tab, down: headbreaker.Tab, left: headbreaker.Slot },
     metadata: { id: 'b', currentPosition: { x: 100, y: 50 }, color: '#B83361' }
   });
-  soft.sketchPiece({
+  basic.sketchPiece({
     structure: { up: headbreaker.Slot, right: headbreaker.Tab, down: headbreaker.Slot, left: headbreaker.Tab },
     metadata: { id: 'g', currentPosition: { x: 100, y: 190 } }
   });
-  soft.sketchPiece({
+  basic.sketchPiece({
     structure: { up: headbreaker.Slot, right: headbreaker.Tab, down: headbreaker.Tab, left: headbreaker.Slot },
     metadata: { id: 'c', currentPosition: { x: 150, y: 50 }, color: '#B83361' }
   });
-  soft.sketchPiece({
+  basic.sketchPiece({
     structure: { up: headbreaker.Slot, down: headbreaker.Slot, left: headbreaker.Slot },
     metadata: { id: 'd', currentPosition: { x: 150, y: 100 }, color: '#37AB8C' }
   });
-  soft.sketchPiece({
+  basic.sketchPiece({
     structure: { up: headbreaker.Slot, right: headbreaker.Slot, down: headbreaker.Slot, left: headbreaker.Slot },
     metadata: { id: 'e', currentPosition: { x: 250, y: 200 }, color: '#3934C2' }
   });
-  soft.sketchPiece({
+  basic.sketchPiece({
     structure: { up: headbreaker.Tab, right: headbreaker.Tab, down: headbreaker.Tab, left: headbreaker.Tab },
     metadata: { id: 'f', currentPosition: { x: 250, y: 150 }, color: '#A4C234' }
   });
-  soft.draw();
+  basic.draw();
 });
-</script>
+`} />

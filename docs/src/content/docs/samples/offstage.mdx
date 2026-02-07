@@ -4,6 +4,8 @@ description: Prevent pieces from being dragged outside the canvas boundaries.
 draft: false
 ---
 
+import DemoScript from '../../../components/DemoScript.astro';
+
 ## Code
 
 ```javascript
@@ -35,7 +37,7 @@ malharro.onload = () => {
   <button id="offstage-reframe">Reframe</button>
 </div>
 
-<script>
+<DemoScript code={`
 document.addEventListener('DOMContentLoaded', function () {
   function onClick(id, handler) {
     var el = document.getElementById(id);
@@ -69,4 +71,4 @@ document.addEventListener('DOMContentLoaded', function () {
     registerButtons('offstage', offstage);
   };
 });
-</script>
+`} />
