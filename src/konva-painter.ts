@@ -9,12 +9,13 @@ import * as VectorModule from './vector';
 import { vector } from './vector';
 import * as Pair from './pair';
 
+declare const require: ((id: string) => any) | undefined;
+
 let Konva: any;
 try {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  Konva = typeof globalThis !== 'undefined' && (globalThis as any).Konva
-    ? (globalThis as any).Konva
-    : null;
+  // Use require so esbuild can statically resolve the konva dependency.
+  // In IIFE builds konva is bundled; in CJS/ESM builds it stays external.
+  Konva = typeof require !== 'undefined' ? require('konva') : null;
 } catch (_e) {
   Konva = null;
 }

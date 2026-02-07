@@ -17,6 +17,8 @@ export default defineConfig([
     entry: { headbreaker: 'src/index.ts' },
     format: ['iife'],
     globalName: 'headbreaker',
+    noExternal: ['konva'],
+    platform: 'browser',
     sourcemap: true,
     outDir: 'docs/js',
     clean: false,
