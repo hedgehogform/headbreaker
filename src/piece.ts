@@ -325,7 +325,9 @@ export default class Piece {
 
   getConnector(kind: 'vertical' | 'horizontal'): Connector {
     const _connector = `_${kind}Connector` as '_horizontalConnector' | '_verticalConnector';
-    if (this.puzzle && !this[_connector]) return (this.puzzle as any)[`${kind}Connector`];
+    if (this.puzzle && !this[_connector]) {
+      return kind === 'horizontal' ? this.puzzle.horizontalConnector : this.puzzle.verticalConnector;
+    }
     if (!this[_connector]) {
       this[_connector] = Connector[kind]();
     }

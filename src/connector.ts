@@ -1,5 +1,7 @@
 import { pivot } from './prelude';
 import type Piece from './piece';
+import type { Anchor } from './anchor';
+import type { Insert } from './insert';
 
 export type ConnectionRequirement = (one: Piece, other: Piece) => boolean;
 
@@ -7,41 +9,69 @@ export function noConnectionRequirements(_one: Piece, _other: Piece): boolean {
   return true;
 }
 
+type InsertKey = 'right' | 'down' | 'left' | 'up';
+type AnchorKey = 'rightAnchor' | 'downAnchor' | 'leftAnchor' | 'upAnchor';
+type ConnectionKey = 'rightConnection' | 'downConnection' | 'leftConnection' | 'upConnection';
+
+interface PieceAccessor {
+  forward: InsertKey;
+  backward: InsertKey;
+  forwardAnchor: AnchorKey;
+  backwardAnchor: AnchorKey;
+  forwardConnection: ConnectionKey;
+  backwardConnection: ConnectionKey;
+}
+
 export class Connector {
   axis: 'x' | 'y';
-  forward: 'right' | 'down';
-  backward: 'left' | 'up';
-  forwardAnchor: string;
-  backwardAnchor: string;
-  forwardConnection: string;
-  backwardConnection: string;
+  private accessor: PieceAccessor;
   requirement: ConnectionRequirement;
 
   constructor(axis: 'x' | 'y', forward: 'right' | 'down', backward: 'left' | 'up') {
     this.axis = axis;
-    this.forward = forward;
-    this.backward = backward;
-    this.forwardAnchor = `${forward}Anchor`;
-    this.backwardAnchor = `${backward}Anchor`;
-    this.forwardConnection = `${forward}Connection`;
-    this.backwardConnection = `${backward}Connection`;
+    this.accessor = {
+      forward,
+      backward,
+      forwardAnchor: `${forward}Anchor` as AnchorKey,
+      backwardAnchor: `${backward}Anchor` as AnchorKey,
+      forwardConnection: `${forward}Connection` as ConnectionKey,
+      backwardConnection: `${backward}Connection` as ConnectionKey,
+    };
     this.requirement = noConnectionRequirements;
+  }
+
+  private getInsert(piece: Piece, key: InsertKey): Insert {
+    return piece[key];
+  }
+
+  private getAnchor(piece: Piece, key: AnchorKey): Anchor {
+    return piece[key];
+  }
+
+  private getConnection(piece: Piece, key: ConnectionKey): Piece | null {
+    return piece[key];
+  }
+
+  private setConnection(piece: Piece, key: ConnectionKey, value: Piece | null): void {
+    piece[key] = value;
   }
 
   attract(one: Piece, other: Piece, back: boolean = false): void {
     const [iron, magnet] = pivot(one, other, back);
     let dx: number, dy: number;
-    if ((magnet.centralAnchor as any)[this.axis] > (iron.centralAnchor as any)[this.axis]) {
-      [dx, dy] = (magnet as any)[this.backwardAnchor].diff((iron as any)[this.forwardAnchor]);
+    if (magnet.centralAnchor![this.axis] > iron.centralAnchor![this.axis]) {
+      [dx, dy] = this.getAnchor(magnet, this.accessor.backwardAnchor)
+        .diff(this.getAnchor(iron, this.accessor.forwardAnchor));
     } else {
-      [dx, dy] = (magnet as any)[this.forwardAnchor].diff((iron as any)[this.backwardAnchor]);
+      [dx, dy] = this.getAnchor(magnet, this.accessor.forwardAnchor)
+        .diff(this.getAnchor(iron, this.accessor.backwardAnchor));
     }
     iron.push(dx, dy);
   }
 
   openMovement(one: Piece, delta: number): boolean {
-    return (delta > 0 && !(one as any)[this.forwardConnection])
-      || (delta < 0 && !(one as any)[this.backwardConnection])
+    return (delta > 0 && !this.getConnection(one, this.accessor.forwardConnection))
+      || (delta < 0 && !this.getConnection(one, this.accessor.backwardConnection))
       || delta === 0;
   }
 
@@ -50,21 +80,23 @@ export class Connector {
   }
 
   closeTo(one: Piece, other: Piece, proximity: number): boolean {
-    return (one as any)[this.forwardAnchor].closeTo((other as any)[this.backwardAnchor], proximity);
+    return this.getAnchor(one, this.accessor.forwardAnchor)
+      .closeTo(this.getAnchor(other, this.accessor.backwardAnchor), proximity);
   }
 
   match(one: Piece, other: Piece): boolean {
-    return (one as any)[this.forward].match((other as any)[this.backward]);
+    return this.getInsert(one, this.accessor.forward)
+      .match(this.getInsert(other, this.accessor.backward));
   }
 
   connectWith(one: Piece, other: Piece, proximity: number, back: boolean): void {
     if (!this.canConnectWith(one, other, proximity)) {
-      throw new Error(`can not connect ${this.forward}!`);
+      throw new Error(`can not connect ${this.accessor.forward}!`);
     }
-    if ((one as any)[this.forwardConnection] !== other) {
+    if (this.getConnection(one, this.accessor.forwardConnection) !== other) {
       this.attract(other, one, back);
-      (one as any)[this.forwardConnection] = other;
-      (other as any)[this.backwardConnection] = one;
+      this.setConnection(one, this.accessor.forwardConnection, other);
+      this.setConnection(other, this.accessor.backwardConnection, one);
       one.fireConnect(other);
     }
   }
