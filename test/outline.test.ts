@@ -1,7 +1,7 @@
-import { describe, expect, it } from 'vitest'
-import { None, Slot, Tab } from '../src/insert'
-import { Classic, Rounded } from '../src/outline'
-import Piece from '../src/piece'
+import { describe, expect, it } from 'vitest';
+import { None, Slot, Tab } from '../src/insert';
+import { Classic, Rounded } from '../src/outline';
+import Piece from '../src/piece';
 
 describe('classic', () => {
   it('should produce a square', () => {
@@ -38,8 +38,8 @@ describe('classic', () => {
       2,
       0,
       1,
-    ])
-  })
+    ]);
+  });
 
   it('should produce a rectangle', () => {
     expect(Classic.draw(new Piece(), { x: 5, y: 50 })).toEqual([
@@ -75,8 +75,8 @@ describe('classic', () => {
       20,
       0,
       10,
-    ])
-  })
+    ]);
+  });
 
   it('should produce a square with border fill', () => {
     expect(Classic.draw(new Piece(), 5, 0.5)).toEqual([
@@ -112,8 +112,8 @@ describe('classic', () => {
       2,
       -0.5,
       1,
-    ])
-  })
+    ]);
+  });
 
   it('should produce a rectangle with border fill', () => {
     expect(Classic.draw(new Piece(), { x: 5, y: 10 }, { x: 0.5, y: 1 })).toEqual([
@@ -149,13 +149,13 @@ describe('classic', () => {
       4,
       -0.5,
       2,
-    ])
-  })
+    ]);
+  });
 
   it('isBezier returns false', () => {
-    expect(Classic.isBezier()).toBe(false)
-  })
-})
+    expect(Classic.isBezier()).toBe(false);
+  });
+});
 
 describe('rounded', () => {
   it('works with TTSS', () => {
@@ -234,8 +234,8 @@ describe('rounded', () => {
       0,
       0,
       0,
-    ])
-  })
+    ]);
+  });
 
   it('works with TTST', () => {
     expect(new Rounded().draw(new Piece({ up: Tab, right: Tab, down: Slot, left: Tab }), 150)).toEqual([
@@ -313,8 +313,8 @@ describe('rounded', () => {
       0,
       0,
       0,
-    ])
-  })
+    ]);
+  });
 
   it('works with TSST', () => {
     expect(new Rounded().draw(new Piece({ up: Tab, right: Slot, down: Slot, left: Tab }), 150)).toEqual([
@@ -392,8 +392,8 @@ describe('rounded', () => {
       0,
       0,
       0,
-    ])
-  })
+    ]);
+  });
 
   it('works with T-ST', () => {
     expect(new Rounded().draw(new Piece({ up: Tab, right: None, down: Slot, left: Tab }), 150)).toEqual([
@@ -471,8 +471,8 @@ describe('rounded', () => {
       0,
       0,
       0,
-    ])
-  })
+    ]);
+  });
 
   it('works with ----', () => {
     expect(new Rounded().draw(new Piece(), 150)).toEqual([
@@ -550,14 +550,14 @@ describe('rounded', () => {
       0,
       0,
       0,
-    ])
-  })
+    ]);
+  });
 
   it('works with ----, bezelized', () => {
-    expect(new Rounded({ bezelize: true }).draw(new Piece(), 150).length).toBe(98)
-  })
+    expect(new Rounded({ bezelize: true }).draw(new Piece(), 150).length).toBe(98);
+  });
 
   it('isBezier returns true', () => {
-    expect(new Rounded().isBezier()).toBe(true)
-  })
-})
+    expect(new Rounded().isBezier()).toBe(true);
+  });
+});

@@ -1,27 +1,27 @@
-import type { Insert } from './insert'
-import type Piece from './piece'
-import type { Vector } from './vector'
-import * as VectorModule from './vector'
+import type { Insert } from './insert';
+import type Piece from './piece';
+import type { Vector } from './vector';
+import * as VectorModule from './vector';
 
 function select<T>(insert: Insert, t: T, s: T, n: T): T {
   if (insert.isTab())
-    return t
+    return t;
   if (insert.isSlot())
-    return s
-  return n
+    return s;
+  return n;
 }
 
 function sl(p: Piece, t: number[], s: number[], n: number[]): number[] {
-  return select(p.left, t, s, n)
+  return select(p.left, t, s, n);
 }
 function sr(p: Piece, t: number[], s: number[], n: number[]): number[] {
-  return select(p.right, t, s, n)
+  return select(p.right, t, s, n);
 }
 function su(p: Piece, t: number[], s: number[], n: number[]): number[] {
-  return select(p.up, t, s, n)
+  return select(p.up, t, s, n);
 }
 function sd(p: Piece, t: number[], s: number[], n: number[]): number[] {
-  return select(p.down, t, s, n)
+  return select(p.down, t, s, n);
 }
 
 export interface Outline {
@@ -29,8 +29,8 @@ export interface Outline {
     piece: Piece,
     size?: Vector | number,
     borderFill?: Vector | number,
-  ) => number[]
-  isBezier: () => boolean
+  ) => number[];
+  isBezier: () => boolean;
 }
 
 export class Squared implements Outline {
@@ -39,13 +39,13 @@ export class Squared implements Outline {
     size: Vector | number = 50,
     borderFill: Vector | number = 0,
   ): number[] {
-    const sizeVector = VectorModule.cast(size)
+    const sizeVector = VectorModule.cast(size);
     const offset = VectorModule.divide(
       VectorModule.multiply(borderFill, 5),
       sizeVector,
-    )
+    );
     const selNum = (insert: Insert, t: number, s: number, n: number) =>
-      select(insert, t, s, n)
+      select(insert, t, s, n);
     return [
       0 - offset.x,
       0 - offset.y,
@@ -81,20 +81,20 @@ export class Squared implements Outline {
       1,
     ].map(
       (it, index) => (it * (index % 2 === 0 ? sizeVector.x : sizeVector.y)) / 5,
-    )
+    );
   }
 
   isBezier(): boolean {
-    return false
+    return false;
   }
 }
 
 export class Rounded implements Outline {
-  bezelize: boolean
-  bezelDepth: number
-  insertDepth: number
-  borderLength: number
-  referenceInsertAxis: { atVector: (v: Vector) => number } | null
+  bezelize: boolean;
+  bezelDepth: number;
+  insertDepth: number;
+  borderLength: number;
+  referenceInsertAxis: { atVector: (v: Vector) => number } | null;
 
   constructor({
     bezelize = false,
@@ -103,23 +103,23 @@ export class Rounded implements Outline {
     borderLength = 1 / 3,
     referenceInsertAxis = null,
   }: {
-    bezelize?: boolean
-    bezelDepth?: number
-    insertDepth?: number
-    borderLength?: number
-    referenceInsertAxis?: { atVector: (v: Vector) => number } | null
+    bezelize?: boolean;
+    bezelDepth?: number;
+    insertDepth?: number;
+    borderLength?: number;
+    referenceInsertAxis?: { atVector: (v: Vector) => number } | null;
   } = {}) {
-    this.bezelize = bezelize
-    this.bezelDepth = bezelDepth
-    this.insertDepth = insertDepth
-    this.borderLength = borderLength
-    this.referenceInsertAxis = referenceInsertAxis
+    this.bezelize = bezelize;
+    this.bezelDepth = bezelDepth;
+    this.insertDepth = insertDepth;
+    this.borderLength = borderLength;
+    this.referenceInsertAxis = referenceInsertAxis;
   }
 
   referenceInsertAxisLength(fullSize: Vector): number {
     return this.referenceInsertAxis
       ? this.referenceInsertAxis.atVector(fullSize)
-      : VectorModule.inner.min(fullSize)
+      : VectorModule.inner.min(fullSize);
   }
 
   draw(
@@ -127,26 +127,26 @@ export class Rounded implements Outline {
     size: Vector | number = 150,
     _borderFill: Vector | number = 0,
   ): number[] {
-    const fullSize = VectorModule.cast(size)
+    const fullSize = VectorModule.cast(size);
     const r
       = Math.trunc(
         this.referenceInsertAxisLength(fullSize)
         * (1 - 2 * this.borderLength)
         * 100,
-      ) / 100
-    const s = VectorModule.divide(VectorModule.minus(fullSize, r), 2)
-    const o = VectorModule.multiply(r, this.insertDepth)
-    const b = VectorModule.multiply(VectorModule.inner.min(s), this.bezelDepth)
+      ) / 100;
+    const s = VectorModule.divide(VectorModule.minus(fullSize, r), 2);
+    const o = VectorModule.multiply(r, this.insertDepth);
+    const b = VectorModule.multiply(VectorModule.inner.min(s), this.bezelDepth);
 
-    const [b0, b1, b2, b3] = this.bezels(p)
+    const [b0, b1, b2, b3] = this.bezels(p);
 
-    const nx = (c: boolean) => (c ? b.x : 0)
-    const ny = (c: boolean) => (c ? b.y : 0)
+    const nx = (c: boolean) => (c ? b.x : 0);
+    const ny = (c: boolean) => (c ? b.y : 0);
 
-    const rsy = r + s.y
-    const rsx = r + s.x
-    const r2sy = r + 2 * s.y
-    const r2sx = r + 2 * s.x
+    const rsy = r + s.y;
+    const rsx = r + s.x;
+    const r2sy = r + 2 * s.y;
+    const r2sx = r + 2 * s.x;
 
     return [
       nx(b0),
@@ -225,7 +225,7 @@ export class Rounded implements Outline {
       0,
       b0 ? b.x : 0,
       0,
-    ]
+    ];
   }
 
   bezels(p: Piece): boolean[] {
@@ -235,14 +235,14 @@ export class Rounded implements Outline {
         p.left.isNone() && p.down.isNone(),
         p.right.isNone() && p.down.isNone(),
         p.right.isNone() && p.up.isNone(),
-      ]
+      ];
     }
-    return [false, false, false, false]
+    return [false, false, false, false];
   }
 
   isBezier(): boolean {
-    return true
+    return true;
   }
 }
 
-export const Classic = new Squared()
+export const Classic = new Squared();

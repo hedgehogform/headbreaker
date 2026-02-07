@@ -1,4 +1,4 @@
-import { defineConfig } from 'tsup'
+import { defineConfig } from 'tsup';
 
 export default defineConfig([
   // Library builds (CJS + ESM with type declarations)
@@ -23,7 +23,7 @@ export default defineConfig([
     outDir: 'docs/public/js',
     clean: false,
     outExtension() {
-      return { js: '.js' }
+      return { js: '.js' };
     },
   },
-])
+]);

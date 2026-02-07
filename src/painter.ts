@@ -1,12 +1,12 @@
-import type Canvas from './canvas'
-import type { Figure, Group } from './canvas'
-import type { Outline } from './outline'
-import type Piece from './piece'
-import type Puzzle from './puzzle'
-import type { Vector } from './vector'
+import type Canvas from './canvas';
+import type { Figure, Group } from './canvas';
+import type { Outline } from './outline';
+import type Piece from './piece';
+import type Puzzle from './puzzle';
+import type { Vector } from './vector';
 
-export type VectorAction = (dx: number, dy: number) => void
-export type Action = () => void
+export type VectorAction = (dx: number, dy: number) => void;
+export type Action = () => void;
 
 export default class Painter {
   resize(_canvas: Canvas, _width: number, _height: number): void {
