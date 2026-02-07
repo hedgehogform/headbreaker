@@ -1,0 +1,88 @@
+---
+title: Responsive
+description: Puzzle that automatically resizes to fit its container.
+draft: false
+---
+
+## Code
+
+```javascript
+const initialWidth = 800;
+const responsive = new headbreaker.Canvas('responsive-canvas', {
+  width: 800, height: 650,
+  pieceSize: 100, proximity: 20,
+  borderFill: 10, strokeWidth: 1.5,
+  lineSoftness: 0.18,
+});
+
+responsive.autogenerate({
+  horizontalPiecesCount: 3,
+  verticalPiecesCount: 3,
+  metadata: [
+    {color: '#6F04C7'}, {color: '#0498D1'}, {color: '#16BA0D'},
+    {color: '#000000'}, {color: '#6F04C7'}, {color: '#0498D1'},
+    {color: '#16BA0D'}, {color: '#000000'}, {color: '#6F04C7'},
+  ]
+});
+responsive.draw();
+
+['resize', 'DOMContentLoaded'].forEach((event) => {
+  window.addEventListener(event, () => {
+    var container = document.getElementById('responsive-canvas');
+    responsive.resize(container.offsetWidth, container.scrollHeight);
+    responsive.scale(container.offsetWidth / initialWidth);
+    responsive.redraw();
+  });
+});
+```
+
+## Demo
+
+<div id="responsive-canvas" class="demo-canvas"></div>
+<div class="demo-buttons">
+  <button id="responsive-shuffle">Shuffle</button>
+  <button id="responsive-shuffle-grid">Shuffle Grid</button>
+  <button id="responsive-shuffle-columns">Shuffle Columns</button>
+  <button id="responsive-solve">Solve</button>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  function onClick(id, handler) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('click', function () { handler(); });
+  }
+  function registerButtons(id, canvas) {
+    onClick(id + '-shuffle', function () { canvas.shuffle(0.8); canvas.redraw(); });
+    onClick(id + '-shuffle-grid', function () { canvas.shuffleGrid(1.2); canvas.redraw(); });
+    onClick(id + '-shuffle-columns', function () { canvas.shuffleColumns(1.2); canvas.redraw(); });
+    onClick(id + '-solve', function () { canvas.solve(); canvas.redraw(); });
+  }
+  var initialWidth = 800;
+  var responsive = new headbreaker.Canvas('responsive-canvas', {
+    width: 800, height: 650,
+    pieceSize: 100, proximity: 20,
+    borderFill: 10, strokeWidth: 1.5,
+    lineSoftness: 0.18,
+  });
+  responsive.autogenerate({
+    horizontalPiecesCount: 3,
+    verticalPiecesCount: 3,
+    metadata: [
+      {color: '#6F04C7'}, {color: '#0498D1'}, {color: '#16BA0D'},
+      {color: '#000000'}, {color: '#6F04C7'}, {color: '#0498D1'},
+      {color: '#16BA0D'}, {color: '#000000'}, {color: '#6F04C7'},
+    ]
+  });
+  responsive.draw();
+  ['resize', 'DOMContentLoaded'].forEach(function (event) {
+    window.addEventListener(event, function () {
+      var container = document.getElementById('responsive-canvas');
+      responsive.resize(container.offsetWidth, container.scrollHeight);
+      responsive.scale(container.offsetWidth / initialWidth);
+      responsive.redraw();
+    });
+  });
+  registerButtons('responsive', responsive);
+});
+</script>

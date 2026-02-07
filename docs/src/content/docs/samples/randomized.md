@@ -1,0 +1,49 @@
+---
+title: Randomized Positions
+description: Puzzle with randomly shuffled piece positions using a flipflop generator.
+draft: false
+---
+
+## Code
+
+```javascript
+let dali = new Image();
+dali.src = 'static/dali.jpg';
+dali.onload = () => {
+  const randomized = new headbreaker.Canvas('randomized-canvas', {
+    width: 800, height: 650,
+    pieceSize: 100, proximity: 20,
+    borderFill: 10, strokeWidth: 2,
+    lineSoftness: 0.12, image: dali
+  });
+  randomized.autogenerate({
+    insertsGenerator: headbreaker.generators.flipflop
+  });
+  randomized.shuffle(0.7);
+  randomized.draw();
+}
+```
+
+## Demo
+
+<div id="randomized-canvas" class="demo-canvas"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var dali = new Image();
+  dali.src = '/headbreaker/static/dali.jpg';
+  dali.onload = function () {
+    var randomized = new headbreaker.Canvas('randomized-canvas', {
+      width: 800, height: 650,
+      pieceSize: 100, proximity: 20,
+      borderFill: 10, strokeWidth: 2,
+      lineSoftness: 0.12, image: dali
+    });
+    randomized.autogenerate({
+      insertsGenerator: headbreaker.generators.flipflop
+    });
+    randomized.shuffle(0.7);
+    randomized.draw();
+  };
+});
+</script>

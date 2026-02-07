@@ -20,7 +20,7 @@ export default defineConfig([
     noExternal: ['konva'],
     platform: 'browser',
     sourcemap: true,
-    outDir: 'docs/js',
+    outDir: 'docs/public/js',
     clean: false,
     outExtension() {
       return { js: '.js' };

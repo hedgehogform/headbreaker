@@ -1,0 +1,61 @@
+.demo-buttons {
+  margin-top: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.demo-buttons button {
+  padding: 6px 16px;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 4px;
+  background: var(--sl-color-accent);
+  color: var(--sl-color-white);
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.demo-buttons button:hover {
+  opacity: 0.9;
+}
+
+.demo-canvas {
+  margin: 1rem 0;
+}
+
+.demo-canvas .konvajs-content canvas {
+  border: 1px solid var(--sl-color-gray-5) !important;
+}
+
+#responsive-canvas .konvajs-content canvas,
+#offstage-canvas .konvajs-content canvas {
+  border: solid !important;
+}
+
+#validated-canvas-overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1s ease-in-out;
+}
+
+#validated-canvas-overlay.active {
+  opacity: 1;
+}
+
+#export-area {
+  width: 100%;
+  min-height: 150px;
+  margin-top: 10px;
+  font-family: monospace;
+  font-size: 0.8rem;
+  padding: 8px;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 4px;
+  background: var(--sl-color-gray-7);
+  color: var(--sl-color-white);
+}

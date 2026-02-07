@@ -1,0 +1,98 @@
+---
+title: Persistent
+description: Export and import puzzle state as JSON.
+draft: false
+---
+
+## Code
+
+```javascript
+const exportArea = document.getElementById('export-area');
+
+function readDump() {
+  return JSON.parse(exportArea.value);
+}
+
+function writeDump(dump) {
+  exportArea.value = JSON.stringify(dump, null, 2);
+}
+
+const persistent = new headbreaker.Canvas('persistent-canvas', {
+  width: 500, height: 400, strokeWidth: 0, borderFill: 4
+});
+persistent.autogenerate({metadata: [
+  {color: '#6F04C7'}, {color: '#0498D1'}, {color: '#16BA0D'},
+  {color: '#D1A704'}, {color: '#C72C07'},
+  {color: '#000000'}, {color: '#6F04C7'}, {color: '#0498D1'},
+  {color: '#16BA0D'}, {color: '#D1A704'},
+  {color: '#C72C07'}, {color: '#000000'}, {color: '#6F04C7'},
+  {color: '#0498D1'}, {color: '#16BA0D'},
+  {color: '#D1A704'}, {color: '#C72C07'}, {color: '#000000'},
+  {color: '#6F04C7'}, {color: '#0498D1'},
+  {color: '#16BA0D'}, {color: '#D1A704'}, {color: '#C72C07'},
+  {color: '#000000'}, {color: '#6F04C7'}
+]});
+persistent.draw();
+
+document.getElementById('persistent-import').addEventListener('click', function() {
+  persistent.clear();
+  persistent.renderPuzzle(headbreaker.Puzzle.import(readDump()));
+  persistent.draw();
+});
+
+document.getElementById('persistent-export').addEventListener('click', function() {
+  writeDump(persistent.puzzle.export({compact: true}));
+});
+```
+
+## Demo
+
+<div id="persistent-canvas" class="demo-canvas"></div>
+<textarea id="export-area" rows="10"></textarea>
+<div class="demo-buttons">
+  <button id="persistent-export">Export</button>
+  <button id="persistent-import">Import</button>
+  <button id="persistent-shuffle">Shuffle</button>
+  <button id="persistent-shuffle-grid">Shuffle Grid</button>
+  <button id="persistent-shuffle-columns">Shuffle Columns</button>
+  <button id="persistent-solve">Solve</button>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  function onClick(id, handler) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('click', function () { handler(); });
+  }
+  function registerButtons(id, canvas) {
+    onClick(id + '-shuffle', function () { canvas.shuffle(0.8); canvas.redraw(); });
+    onClick(id + '-shuffle-grid', function () { canvas.shuffleGrid(1.2); canvas.redraw(); });
+    onClick(id + '-shuffle-columns', function () { canvas.shuffleColumns(1.2); canvas.redraw(); });
+    onClick(id + '-solve', function () { canvas.solve(); canvas.redraw(); });
+  }
+  var exportArea = document.getElementById('export-area');
+  function readDump() { return JSON.parse(exportArea.value); }
+  function writeDump(dump) { exportArea.value = JSON.stringify(dump, null, 2); }
+
+  var persistent = new headbreaker.Canvas('persistent-canvas', {
+    width: 500, height: 400, strokeWidth: 0, borderFill: 4
+  });
+  persistent.autogenerate({metadata: [
+    {color: '#6F04C7'}, {color: '#0498D1'}, {color: '#16BA0D'}, {color: '#D1A704'}, {color: '#C72C07'},
+    {color: '#000000'}, {color: '#6F04C7'}, {color: '#0498D1'}, {color: '#16BA0D'}, {color: '#D1A704'},
+    {color: '#C72C07'}, {color: '#000000'}, {color: '#6F04C7'}, {color: '#0498D1'}, {color: '#16BA0D'},
+    {color: '#D1A704'}, {color: '#C72C07'}, {color: '#000000'}, {color: '#6F04C7'}, {color: '#0498D1'},
+    {color: '#16BA0D'}, {color: '#D1A704'}, {color: '#C72C07'}, {color: '#000000'}, {color: '#6F04C7'}
+  ]});
+  persistent.draw();
+  onClick('persistent-import', function () {
+    persistent.clear();
+    persistent.renderPuzzle(headbreaker.Puzzle.import(readDump()));
+    persistent.draw();
+  });
+  onClick('persistent-export', function () {
+    writeDump(persistent.puzzle.export({compact: true}));
+  });
+  registerButtons('persistent', persistent);
+});
+</script>

@@ -3,5 +3,9 @@ node_modules/**
 dist/**
 site/**
 docs/api/**
-docs/js/headbreaker.js.map
+docs/public/js/headbreaker.js
+docs/public/js/headbreaker.js.map
+docs/.astro/**
+docs/dist/**
+docs/node_modules/**
 *.tsbuildinfo

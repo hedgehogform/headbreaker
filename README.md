@@ -308,8 +308,8 @@ $ npm run typecheck
 $ npm run build
 # run all checks and build
 $ npm run all
-# start docs site locally (requires mkdocs)
-$ mkdocs serve
+# start docs site locally (Astro Starlight)
+$ cd docs && npm install && npm run dev
 ```
 
 ## Contributors

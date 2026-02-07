@@ -1,0 +1,72 @@
+---
+title: Offstage Drag Prevention
+description: Prevent pieces from being dragged outside the canvas boundaries.
+draft: false
+---
+
+## Code
+
+```javascript
+let malharro = new Image();
+malharro.src = 'static/malharro.jpg';
+malharro.onload = () => {
+  const offstage = new headbreaker.Canvas('offstage-canvas', {
+    width: 400, height: 400, image: malharro,
+    // ... more configs ...
+    preventOffstageDrag: true,
+    fixed: true
+  });
+
+  offstage.adjustImagesToPuzzleHeight();
+  offstage.autogenerate({
+    horizontalPiecesCount: 3,
+    verticalPiecesCount: 3
+  });
+  offstage.shuffleGrid();
+  offstage.draw();
+}
+```
+
+## Demo
+
+<div id="offstage-canvas" class="demo-canvas"></div>
+<div class="demo-buttons">
+  <button id="offstage-solve">Solve</button>
+  <button id="offstage-reframe">Reframe</button>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  function onClick(id, handler) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('click', function () { handler(); });
+  }
+  function registerButtons(id, canvas) {
+    onClick(id + '-shuffle', function () { canvas.shuffle(0.8); canvas.redraw(); });
+    onClick(id + '-shuffle-grid', function () { canvas.shuffleGrid(1.2); canvas.redraw(); });
+    onClick(id + '-shuffle-columns', function () { canvas.shuffleColumns(1.2); canvas.redraw(); });
+    onClick(id + '-solve', function () { canvas.solve(); canvas.redraw(); });
+    onClick(id + '-reframe', function () { canvas.reframeWithinDimensions(); canvas.redraw(); });
+  }
+  var malharro = new Image();
+  malharro.src = '/headbreaker/static/malharro.jpg';
+  malharro.onload = function () {
+    var offstage = new headbreaker.Canvas('offstage-canvas', {
+      width: 500, height: 500,
+      pieceSize: 100, proximity: 20,
+      strokeWidth: 5, strokeColor: '#302B00', image: malharro,
+      outline: new headbreaker.outline.Rounded(),
+      preventOffstageDrag: true,
+      fixed: true
+    });
+    offstage.adjustImagesToPuzzleHeight();
+    offstage.autogenerate({
+      horizontalPiecesCount: 3,
+      verticalPiecesCount: 3
+    });
+    offstage.shuffleGrid();
+    offstage.draw();
+    registerButtons('offstage', offstage);
+  };
+});
+</script>
