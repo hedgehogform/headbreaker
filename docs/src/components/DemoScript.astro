@@ -3,6 +3,5 @@ interface Props {
   code: string;
 }
 const { code } = Astro.props;
-const html = '<scr' + 'ipt>' + code + '</scr' + 'ipt>';
 ---
-<Fragment set:html={html} />
+<script is:inline set:html={code} />

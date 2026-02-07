@@ -21,10 +21,16 @@
 
 .demo-canvas {
   margin: 1rem 0;
+  max-width: 100%;
+  overflow-x: auto;
 }
 
 .demo-canvas .konvajs-content canvas {
   border: 1px solid var(--sl-color-gray-5) !important;
+}
+
+.demo-canvas .konvajs-content {
+  max-width: 100%;
 }
 
 #responsive-canvas .konvajs-content canvas,
