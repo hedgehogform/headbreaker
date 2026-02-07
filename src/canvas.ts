@@ -1,45 +1,65 @@
-import * as Pair from './pair';
-import Piece from './piece';
-import Puzzle from './puzzle';
-import Manufacturer from './manufacturer';
-import { twoAndTwo, type InsertsGenerator } from './sequence';
-import * as Structure from './structure';
-import * as ImageMetadata from './image-metadata';
-import * as VectorModule from './vector';
-import { vector, type Vector } from './vector';
-import * as Metadata from './metadata';
-import * as SpatialMetadata from './spatial-metadata';
-import { PuzzleValidator, PieceValidator, type Validator, type ValidationListener } from './validator';
-import { Horizontal, Vertical, type Axis } from './axis';
-import * as Shuffler from './shuffler';
-import { diameter, type Size } from './size';
-import { itself } from './prelude';
-import { Classic, type Outline } from './outline';
-import type Painter from './painter';
-import type { ConnectionRequirement } from './connector';
-import type { ImageMetadata as ImageMetadataType } from './image-metadata';
+import * as Pair from "./pair";
+import Piece from "./piece";
+import Puzzle from "./puzzle";
+import Manufacturer from "./manufacturer";
+import { twoAndTwo, type InsertsGenerator } from "./sequence";
+import * as Structure from "./structure";
+import * as ImageMetadata from "./image-metadata";
+import * as VectorModule from "./vector";
+import { vector, type Vector } from "./vector";
+import * as Metadata from "./metadata";
+import * as SpatialMetadata from "./spatial-metadata";
+import {
+  PuzzleValidator,
+  PieceValidator,
+  type Validator,
+  type ValidationListener,
+} from "./validator";
+import { Horizontal, Vertical, type Axis } from "./axis";
+import * as Shuffler from "./shuffler";
+import { diameter, type Size } from "./size";
+import { itself } from "./prelude";
+import { Classic, type Outline } from "./outline";
+import Painter from "./painter";
+import type { ConnectionRequirement } from "./connector";
+import type {
+  ImageMetadata as ImageMetadataType,
+  ImageLike,
+} from "./image-metadata";
+import type { LabelMetadata, PieceMetadata } from "./piece";
 
-export type Shape = any;
-export type Group = any;
-export type Label = any;
+interface HeadbreakerGlobal {
+  headbreaker?: {
+    painters?: {
+      Konva?: new () => Painter;
+    };
+  };
+}
+
+import type Konva from "konva";
+
+export type Group = Konva.Group;
+
+export type { LabelMetadata } from "./piece";
 
 export interface Figure {
-  shape: Shape;
-  group: Group;
-  label?: Label;
+  shape?: Konva.Line;
+  group?: Konva.Group;
+  label?: Konva.Text;
 }
 
-export type CanvasConnectionListener = (piece: Piece, figure: Figure, targetPiece: Piece, targetFigure: Figure) => void;
-export type CanvasTranslationListener = (piece: Piece, figure: Figure, dx: number, dy: number) => void;
-
-export interface LabelMetadata {
-  text?: string;
-  fontSize?: number;
-  x?: number;
-  y?: number;
-  fontFamily?: string;
-  color?: string;
-}
+export type CanvasConnectionListener = (
+  piece: Piece,
+  figure: Figure,
+  targetPiece: Piece,
+  targetFigure: Figure,
+) => void;
+export type CanvasTranslationListener = (
+  piece: Piece,
+  figure: Figure,
+  dx: number,
+  dy: number,
+) => void;
 
 export interface CanvasMetadata {
   id?: string;
@@ -48,9 +68,10 @@ export interface CanvasMetadata {
   color?: string;
   fixed?: boolean;
   strokeColor?: string;
-  image?: any;
+  image?: ImageLike;
   label?: LabelMetadata;
   scale?: number;
+  [key: string]: unknown;
 }
 
 export interface Template {
@@ -79,43 +100,48 @@ export default class Canvas {
   _puzzle: Puzzle | null = null;
   figures: Record<string, Figure> = {};
   templates: Record<string, Template> = {};
+  _konvaLayer?: Konva.Layer;
+  _nullLayer?: { drawn: boolean; figures: number };
   _figurePadding: Vector | null = null;
   _drawn: boolean = false;
   autoconnected: boolean = false;
 
-  constructor(id: string, {
-    width,
-    height,
-    pieceSize = 50,
-    proximity = 10,
-    borderFill = 0,
-    strokeWidth = 3,
-    strokeColor = 'black',
-    lineSoftness = 0,
-    preventOffstageDrag = false,
-    image = null,
-    fixed = false,
-    painter = null,
-    puzzleDiameter = null,
-    maxPiecesCount = null,
-    outline = null
-  }: {
-    width: number;
-    height: number;
-    pieceSize?: Vector | number;
-    proximity?: number;
-    borderFill?: Vector | number;
-    strokeWidth?: number;
-    strokeColor?: string;
-    lineSoftness?: number;
-    preventOffstageDrag?: boolean;
-    image?: any;
-    fixed?: boolean;
-    painter?: Painter | null;
-    puzzleDiameter?: Vector | number | null;
-    maxPiecesCount?: Vector | number | null;
-    outline?: Outline | null;
-  }) {
+  constructor(
+    id: string,
+    {
+      width,
+      height,
+      pieceSize = 50,
+      proximity = 10,
+      borderFill = 0,
+      strokeWidth = 3,
+      strokeColor = "black",
+      lineSoftness = 0,
+      preventOffstageDrag = false,
+      image = null,
+      fixed = false,
+      painter = null,
+      puzzleDiameter = null,
+      maxPiecesCount = null,
+      outline = null,
+    }: {
+      width: number;
+      height: number;
+      pieceSize?: Vector | number;
+      proximity?: number;
+      borderFill?: Vector | number;
+      strokeWidth?: number;
+      strokeColor?: string;
+      lineSoftness?: number;
+      preventOffstageDrag?: boolean;
+      image?: ImageLike | null;
+      fixed?: boolean;
+      painter?: Painter | null;
+      puzzleDiameter?: Vector | number | null;
+      maxPiecesCount?: Vector | number | null;
+      outline?: Outline | null;
+    },
+  ) {
     this.width = width;
     this.height = height;
     this.pieceSize = diameter(pieceSize);
@@ -128,11 +154,17 @@ export default class Canvas {
     this.proximity = proximity;
     this.fixed = fixed;
 
-    this._painter = painter || new ((globalThis as any)['headbreaker']?.['painters']?.['Konva'] ?? class { initialize() {} })();
+    const global = globalThis as HeadbreakerGlobal;
+    const KonvaPainter = global.headbreaker?.painters?.Konva ?? Painter;
+    this._painter = painter || new KonvaPainter();
     this._painter.initialize(this, id);
 
-    this._maxPiecesCount = maxPiecesCount ? VectorModule.cast(maxPiecesCount) : null;
-    this._puzzleDiameter = puzzleDiameter ? VectorModule.cast(puzzleDiameter) : null;
+    this._maxPiecesCount = maxPiecesCount
+      ? VectorModule.cast(maxPiecesCount)
+      : null;
+    this._puzzleDiameter = puzzleDiameter
+      ? VectorModule.cast(puzzleDiameter)
+      : null;
     this._imageAdjuster = itself;
     this._outline = outline || Classic;
   }
@@ -143,23 +175,27 @@ export default class Canvas {
   }
 
   renderPiece(piece: Piece): void {
-    const figure: Figure = { label: null, group: null, shape: null };
+    const figure: Figure = {
+      label: undefined,
+      group: undefined,
+      shape: undefined,
+    };
     this.figures[piece.metadata.id] = figure;
     this._painter.sketch(this, piece, figure, this._outline);
 
     const label = piece.metadata.label as LabelMetadata | undefined;
-    if (label && label.text) {
+    if (label?.text) {
       label.fontSize = label.fontSize || piece.diameter.y * 0.55;
       label.y = label.y || (piece.diameter.y - label.fontSize) / 2;
       this._painter.label(this, piece, figure);
     }
 
-    this._bindGroupToPiece(figure.group, piece);
-    this._bindPieceToGroup(piece, figure.group);
+    this._bindGroupToPiece(figure.group!, piece);
+    this._bindPieceToGroup(piece, figure.group!);
   }
 
   renderPieces(pieces: Piece[]): void {
-    pieces.forEach(it => {
+    pieces.forEach((it) => {
       this._annotatePiecePosition(it);
       this.renderPiece(it);
     });
@@ -176,7 +212,7 @@ export default class Canvas {
     horizontalPiecesCount = 5,
     verticalPiecesCount = 5,
     insertsGenerator = twoAndTwo,
-    metadata = []
+    metadata = [],
   }: {
     horizontalPiecesCount?: number;
     verticalPiecesCount?: number;
@@ -206,14 +242,16 @@ export default class Canvas {
     if (!options) {
       throw new Error(`Unknown template ${id}`);
     }
-    const metadata = Metadata.copy(options.metadata);
-    (metadata as any).id = id;
+    const metadata: CanvasMetadata = { ...Metadata.copy(options.metadata), id };
     this.sketchPiece({ structure: options.structure, metadata });
   }
 
   shuffle(farness: number = 1): void {
     const offset = this.pieceRadius;
-    this.puzzle.shuffle(farness * (this.width - offset.x), farness * (this.height - offset.y));
+    this.puzzle.shuffle(
+      farness * (this.width - offset.x),
+      farness * (this.height - offset.y),
+    );
     this.puzzle.translate(offset.x, offset.y);
     this.autoconnected = true;
   }
@@ -232,14 +270,22 @@ export default class Canvas {
 
   shuffleWith(farness: number, shuffler: Shuffler.Shuffler): void {
     this.solve();
-    this.puzzle.shuffleWith(Shuffler.padder(this.proximity * 3, this.maxPiecesCount.x, this.maxPiecesCount.y));
+    this.puzzle.shuffleWith(
+      Shuffler.padder(
+        this.proximity * 3,
+        this.maxPiecesCount.x,
+        this.maxPiecesCount.y,
+      ),
+    );
     this.puzzle.shuffleWith(shuffler);
-    this.puzzle.shuffleWith(Shuffler.noise(VectorModule.cast(this.proximity * farness / 2)));
+    this.puzzle.shuffleWith(
+      Shuffler.noise(VectorModule.cast((this.proximity * farness) / 2)),
+    );
     this.autoconnected = true;
   }
 
   solve(): void {
-    this.puzzle.pieces.forEach(it => {
+    this.puzzle.pieces.forEach((it) => {
       const { x, y } = it.metadata.targetPosition;
       it.relocateTo(x, y);
     });
@@ -251,16 +297,21 @@ export default class Canvas {
     this.autoconnected = true;
   }
 
-  registerKeyboardGestures(gestures: Record<string, (puzzle: Puzzle) => void> = {
-    16: (puzzle) => puzzle.forceConnectionWhileDragging(),
-    17: (puzzle) => puzzle.forceDisconnectionWhileDragging()
-  }): void {
-    this._painter.registerKeyboardGestures(this, gestures);
+  registerKeyboardGestures(
+    gestures?: Record<string, (puzzle: Puzzle) => void>,
+  ): void {
+    const defaultGestures = {
+      Shift: (puzzle: Puzzle) => puzzle.forceConnectionWhileDragging(),
+      Control: (puzzle: Puzzle) => puzzle.forceDisconnectionWhileDragging(),
+    };
+    this._painter.registerKeyboardGestures(this, gestures ?? defaultGestures);
   }
 
   draw(): void {
     if (this._drawn) {
-      throw new Error('This canvas has already been drawn. Call redraw instead');
+      throw new Error(
+        "This canvas has already been drawn. Call redraw instead",
+      );
     }
     if (!this.autoconnected) {
       this.autoconnect();
@@ -276,7 +327,7 @@ export default class Canvas {
   }
 
   refill(): void {
-    this.puzzle.pieces.forEach(piece => {
+    this.puzzle.pieces.forEach((piece) => {
       this._painter.fill(this, piece, this.getFigure(piece));
     });
   }
@@ -307,15 +358,21 @@ export default class Canvas {
   }
 
   attachRelativePositionValidator(): void {
-    this.puzzle.attachValidator(new PuzzleValidator(SpatialMetadata.relativePosition));
+    this.puzzle.attachValidator(
+      new PuzzleValidator(SpatialMetadata.relativePosition),
+    );
   }
 
   attachRelativeRefsValidator(expected: [number, number][]): void {
-    this.puzzle.attachValidator(new PuzzleValidator(PuzzleValidator.relativeRefs(expected)));
+    this.puzzle.attachValidator(
+      new PuzzleValidator(PuzzleValidator.relativeRefs(expected)),
+    );
   }
 
   attachAbsolutePositionValidator(): void {
-    this.puzzle.attachValidator(new PieceValidator(SpatialMetadata.absolutePosition));
+    this.puzzle.attachValidator(
+      new PieceValidator(SpatialMetadata.absolutePosition),
+    );
   }
 
   onConnect(f: CanvasConnectionListener): void {
@@ -337,10 +394,10 @@ export default class Canvas {
   }
 
   reframeWithinDimensions(): void {
-    if (!this.fixed) throw new Error('Only fixed canvas can be reframed');
+    if (!this.fixed) throw new Error("Only fixed canvas can be reframed");
     this.puzzle.reframe(
       this.figurePadding,
-      VectorModule.minus(vector(this.width, this.height), this.figurePadding)
+      VectorModule.minus(vector(this.width, this.height), this.figurePadding),
     );
   }
 
@@ -402,7 +459,7 @@ export default class Canvas {
       const s = piece.metadata.scale || this.imageMetadata.scale || 1;
       const offset = VectorModule.plus(
         piece.metadata.targetPosition || VectorModule.zero(),
-        this.imageMetadata.offset || VectorModule.zero()
+        this.imageMetadata.offset || VectorModule.zero(),
       );
       return { content: this.imageMetadata.content, offset, scale: s };
     }
@@ -417,35 +474,56 @@ export default class Canvas {
 
   adjustImagesToPuzzle(axis: Axis): void {
     this._imageAdjuster = (image) => {
-      const s = axis.atVector(this.puzzleDiameter) / axis.atDimension(image.content);
-      const offset = VectorModule.plus(image.offset!, VectorModule.minus(this.borderFill, this.pieceDiameter));
+      const s =
+        axis.atVector(this.puzzleDiameter) / axis.atDimension(image.content);
+      const offset = VectorModule.plus(
+        image.offset!,
+        VectorModule.minus(this.borderFill, this.pieceDiameter),
+      );
       return { content: image.content, scale: s, offset };
     };
   }
 
-  adjustImagesToPuzzleWidth(): void { this.adjustImagesToPuzzle(Horizontal); }
-  adjustImagesToPuzzleHeight(): void { this.adjustImagesToPuzzle(Vertical); }
+  adjustImagesToPuzzleWidth(): void {
+    this.adjustImagesToPuzzle(Horizontal);
+  }
+  adjustImagesToPuzzleHeight(): void {
+    this.adjustImagesToPuzzle(Vertical);
+  }
 
   adjustImagesToPiece(axis: Axis): void {
     this._imageAdjuster = (image) => {
-      const s = axis.atVector(this.pieceDiameter) / axis.atDimension(image.content);
+      const s =
+        axis.atVector(this.pieceDiameter) / axis.atDimension(image.content);
       const offset = VectorModule.plus(image.offset!, this.borderFill);
       return { content: image.content, scale: s, offset };
     };
   }
 
-  adjustImagesToPieceWidth(): void { this.adjustImagesToPiece(Horizontal); }
-  adjustImagesToPieceHeight(): void { this.adjustImagesToPiece(Vertical); }
+  adjustImagesToPieceWidth(): void {
+    this.adjustImagesToPiece(Horizontal);
+  }
+  adjustImagesToPieceHeight(): void {
+    this.adjustImagesToPiece(Vertical);
+  }
 
   private _initializeEmptyPuzzle(): void {
     this._puzzle = new Puzzle(this.settings);
   }
 
-  private _newPiece(structureLike: Structure.StructureLike, size: Size | null, metadata: any): Piece {
-    return this.puzzle.newPiece(
-      Structure.asStructure(structureLike),
-      { centralAnchor: vector(metadata.currentPosition.x, metadata.currentPosition.y), metadata, size: size ?? undefined }
-    );
+  private _newPiece(
+    structureLike: Structure.StructureLike,
+    size: Size | null,
+    metadata: Partial<PieceMetadata>,
+  ): Piece {
+    return this.puzzle.newPiece(Structure.asStructure(structureLike), {
+      centralAnchor: vector(
+        metadata.currentPosition!.x,
+        metadata.currentPosition!.y,
+      ),
+      metadata,
+      size: size ?? undefined,
+    });
   }
 
   get puzzleDiameter(): Vector {
@@ -453,12 +531,15 @@ export default class Canvas {
   }
 
   get estimatedPuzzleDiameter(): Vector {
-    return VectorModule.plus(VectorModule.multiply(this.pieceDiameter, this.maxPiecesCount), this.strokeWidth * 2);
+    return VectorModule.plus(
+      VectorModule.multiply(this.pieceDiameter, this.maxPiecesCount),
+      this.strokeWidth * 2,
+    );
   }
 
   get maxPiecesCount(): Vector {
     if (!this._maxPiecesCount) {
-      throw new Error('max pieces count was not specified');
+      throw new Error("max pieces count was not specified");
     }
     return this._maxPiecesCount;
   }
@@ -472,9 +553,10 @@ export default class Canvas {
   }
 
   get figurePadding(): Vector {
-    if (!this._figurePadding) {
-      this._figurePadding = VectorModule.plus(this.strokeWidth, this.borderFill);
-    }
+    this._figurePadding ??= VectorModule.plus(
+      this.strokeWidth,
+      this.borderFill,
+    );
     return this._figurePadding;
   }
 

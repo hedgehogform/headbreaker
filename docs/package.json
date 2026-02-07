@@ -2,6 +2,7 @@
   "name": "headbreaker-docs",
   "type": "module",
   "version": "0.0.1",
+  "private": true,
   "scripts": {
     "predev": "cd .. && npm run build",
     "dev": "astro dev",

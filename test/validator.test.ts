@@ -1,12 +1,12 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { anchor } from '../src/anchor';
-import Puzzle from '../src/puzzle';
-import Manufacturer from '../src/manufacturer';
-import { PuzzleValidator, PieceValidator } from '../src/validator';
-import type { Validator } from '../src/validator';
-import * as SpatialMetadata from '../src/spatial-metadata';
+import { describe, it, expect, beforeEach } from "vitest";
+import { anchor } from "../src/anchor";
+import Puzzle from "../src/puzzle";
+import Manufacturer from "../src/manufacturer";
+import { PuzzleValidator, PieceValidator } from "../src/validator";
+import type { Validator } from "../src/validator";
+import * as SpatialMetadata from "../src/spatial-metadata";
 
-describe('validator', () => {
+describe("validator", () => {
   let puzzle: Puzzle;
   let validator: Validator;
 
@@ -18,18 +18,18 @@ describe('validator', () => {
     puzzle = manufacturer.build();
   });
 
-  describe('puzzle', () => {
+  describe("puzzle", () => {
     beforeEach(() => {
       validator = new PuzzleValidator((p) => p.head.isAt(10, 10));
     });
 
-    it('passes with valid puzzle', () => {
+    it("passes with valid puzzle", () => {
       expect(validator.isValid(puzzle)).toBe(false);
       puzzle.translate(10, 10);
       expect(validator.isValid(puzzle)).toBe(true);
     });
 
-    it('updates status', () => {
+    it("updates status", () => {
       validator.validate(puzzle);
       expect(validator.valid).toBe(false);
       puzzle.translate(10, 10);
@@ -39,7 +39,7 @@ describe('validator', () => {
       expect(validator.valid).toBe(true);
     });
 
-    it('connected validator', () => {
+    it("connected validator", () => {
       puzzle.disconnect();
       const v = new PuzzleValidator(PuzzleValidator.connected);
       expect(v.isValid(puzzle)).toBe(false);
@@ -47,79 +47,118 @@ describe('validator', () => {
       expect(v.isValid(puzzle)).toBe(true);
     });
 
-    describe('relative refs validator', () => {
-      it('without offset', () => {
-        const v = new PuzzleValidator(PuzzleValidator.relativeRefs([[0, 0], [1, 0], [0, 1], [1, 1]]));
+    describe("relative refs validator", () => {
+      it("without offset", () => {
+        const v = new PuzzleValidator(
+          PuzzleValidator.relativeRefs([
+            [0, 0],
+            [1, 0],
+            [0, 1],
+            [1, 1],
+          ]),
+        );
         expect(v.isValid(puzzle)).toBe(true);
       });
 
-      it('with offset in refs', () => {
-        const v = new PuzzleValidator(PuzzleValidator.relativeRefs([[1, 1], [2, 1], [1, 2], [2, 2]]));
+      it("with offset in refs", () => {
+        const v = new PuzzleValidator(
+          PuzzleValidator.relativeRefs([
+            [1, 1],
+            [2, 1],
+            [1, 2],
+            [2, 2],
+          ]),
+        );
         expect(v.isValid(puzzle)).toBe(true);
       });
 
-      it('with offset in pieces', () => {
-        const v = new PuzzleValidator(PuzzleValidator.relativeRefs([[0, 0], [1, 0], [0, 1], [1, 1]]));
+      it("with offset in pieces", () => {
+        const v = new PuzzleValidator(
+          PuzzleValidator.relativeRefs([
+            [0, 0],
+            [1, 0],
+            [0, 1],
+            [1, 1],
+          ]),
+        );
         puzzle.translate(10, -10);
         expect(v.isValid(puzzle)).toBe(true);
       });
 
-      it('with non integral offset in pieces', () => {
-        const v = new PuzzleValidator(PuzzleValidator.relativeRefs([[0, 0], [1, 0], [0, 1], [1, 1]]));
+      it("with non integral offset in pieces", () => {
+        const v = new PuzzleValidator(
+          PuzzleValidator.relativeRefs([
+            [0, 0],
+            [1, 0],
+            [0, 1],
+            [1, 1],
+          ]),
+        );
         puzzle.translate(2, -3);
         expect(v.isValid(puzzle)).toBe(true);
       });
 
-      it('with invalid refs', () => {
-        const v = new PuzzleValidator(PuzzleValidator.relativeRefs([[0, 0], [1, 1], [2, 2], [3, 3]]));
+      it("with invalid refs", () => {
+        const v = new PuzzleValidator(
+          PuzzleValidator.relativeRefs([
+            [0, 0],
+            [1, 1],
+            [2, 2],
+            [3, 3],
+          ]),
+        );
         expect(v.isValid(puzzle)).toBe(false);
       });
     });
   });
 
-  describe('piece', () => {
+  describe("piece", () => {
     beforeEach(() => {
       validator = new PieceValidator((piece) => piece.metadata.value === 1);
     });
 
-    it('passes with valid puzzle', () => {
+    it("passes with valid puzzle", () => {
       expect(validator.isValid(puzzle)).toBe(false);
-      puzzle.metadata.forEach((it: any) => it.value = 1);
+      puzzle.metadata.forEach(
+        (it) => ((it as Record<string, unknown>).value = 1),
+      );
       expect(validator.isValid(puzzle)).toBe(true);
     });
 
-    it('is valid within onValid', () => {
+    it("is valid within onValid", () => {
       return new Promise<void>((resolve) => {
         validator.onValid(() => {
           expect(validator.valid).toBe(true);
           resolve();
         });
-        puzzle.metadata.forEach((it: any) => it.value = 1);
+        puzzle.metadata.forEach(
+          (it) => ((it as Record<string, unknown>).value = 1),
+        );
         validator.validate(puzzle);
       });
     });
 
-    it('validation status is initially undefined', () => {
+    it("validation status is initially undefined", () => {
       expect(validator.valid).toBe(undefined);
     });
 
-    it('validation status can be updated without firing events', () => {
+    it("validation status can be updated without firing events", () => {
       validator.updateValidity(puzzle);
       expect(validator.valid).toBe(false);
     });
   });
 
-  describe('NullValidator', () => {
-    it('isNull returns true', () => {
+  describe("NullValidator", () => {
+    it("isNull returns true", () => {
       expect(puzzle.validator.isNull).toBe(true);
     });
   });
 });
 
-describe('SpatialMetadata', () => {
+describe("SpatialMetadata", () => {
   let puzzle: Puzzle;
 
-  describe('standard validators', () => {
+  describe("standard validators", () => {
     beforeEach(() => {
       const manufacturer = new Manufacturer();
       manufacturer.withDimensions(2, 2);
@@ -127,12 +166,14 @@ describe('SpatialMetadata', () => {
       manufacturer.withHeadAt(anchor(0, 0));
       puzzle = manufacturer.build();
 
-      puzzle.annotate(puzzle.pieces.map(it => ({
-        targetPosition: it.centralAnchor!.asVector()
-      })));
+      puzzle.annotate(
+        puzzle.pieces.map((it) => ({
+          targetPosition: it.centralAnchor!.asVector(),
+        })),
+      );
     });
 
-    it('connected validator', () => {
+    it("connected validator", () => {
       puzzle.disconnect();
       const v = new PuzzleValidator(PuzzleValidator.connected);
       expect(v.isValid(puzzle)).toBe(false);
@@ -140,8 +181,8 @@ describe('SpatialMetadata', () => {
       expect(v.isValid(puzzle)).toBe(true);
     });
 
-    describe('relative-position validator', () => {
-      it('works when positions are exact', () => {
+    describe("relative-position validator", () => {
+      it("works when positions are exact", () => {
         const v = new PuzzleValidator(SpatialMetadata.relativePosition);
         expect(v.isValid(puzzle)).toBe(true);
         puzzle.translate(10, 23);
@@ -150,17 +191,17 @@ describe('SpatialMetadata', () => {
         expect(v.isValid(puzzle)).toBe(false);
       });
 
-      it('works when positions not are exact', () => {
+      it("works when positions not are exact", () => {
         const v = new PuzzleValidator(SpatialMetadata.relativePosition);
         expect(v.isValid(puzzle)).toBe(true);
-        puzzle.translate(10.33333333333333333331, 23.33333333333333333331);
+        puzzle.translate(10.333333333333334, 23.333333333333332);
         expect(v.isValid(puzzle)).toBe(true);
         puzzle.shuffle(200, 200);
         expect(v.isValid(puzzle)).toBe(false);
       });
     });
 
-    it('absolute-position validator', () => {
+    it("absolute-position validator", () => {
       const v = new PieceValidator(SpatialMetadata.absolutePosition);
       expect(v.isValid(puzzle)).toBe(true);
       puzzle.translate(10, 23);
@@ -169,7 +210,7 @@ describe('SpatialMetadata', () => {
       expect(v.isValid(puzzle)).toBe(false);
     });
 
-    it('solved validator', () => {
+    it("solved validator", () => {
       const v = new PuzzleValidator(SpatialMetadata.solved);
       puzzle.autoconnect();
       expect(v.isValid(puzzle)).toBe(true);

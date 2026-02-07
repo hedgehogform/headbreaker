@@ -1,17 +1,28 @@
-import { Anchor } from './anchor';
-import Piece from './piece';
-import { NullValidator, type Validator } from './validator';
-import { radius, type Size } from './size';
-import * as VectorModule from './vector';
-import type { Vector } from './vector';
-import * as Shuffler from './shuffler';
-import * as dragMode from './drag-mode';
-import { Connector, noConnectionRequirements, type ConnectionRequirement } from './connector';
-import type { TranslationListener, ConnectionListener, PieceDump } from './piece';
-import type { Structure } from './structure';
-import type { PieceConfig } from './piece';
-import type { ValidationListener } from './validator';
-import type { Pair } from './pair';
+import { Anchor } from "./anchor";
+import Piece from "./piece";
+import {
+  NullValidator,
+  type Validator,
+  type ValidationListener,
+} from "./validator";
+import { radius, type Size } from "./size";
+import type { Vector } from "./vector";
+import * as Shuffler from "./shuffler";
+import * as dragMode from "./drag-mode";
+import {
+  Connector,
+  noConnectionRequirements,
+  type ConnectionRequirement,
+} from "./connector";
+import type {
+  TranslationListener,
+  ConnectionListener,
+  PieceDump,
+  PieceMetadata,
+  PieceConfig,
+} from "./piece";
+import type { Structure } from "./structure";
+import type { Pair } from "./pair";
 
 export interface PuzzleDump {
   pieceRadius: Vector;
@@ -55,10 +66,10 @@ export default class Puzzle {
   }
 
   addPieces(pieces: Piece[]): void {
-    pieces.forEach(it => this.addPiece(it));
+    pieces.forEach((it) => this.addPiece(it));
   }
 
-  annotate(metadata: any[]): void {
+  annotate(metadata: Partial<PieceMetadata>[]): void {
     this.pieces.forEach((piece, index) => piece.annotate(metadata[index]));
   }
 
@@ -67,18 +78,20 @@ export default class Puzzle {
   }
 
   autoconnect(): void {
-    this.pieces.forEach(it => this.autoconnectWith(it));
+    this.pieces.forEach((it) => this.autoconnectWith(it));
   }
 
   disconnect(): void {
-    this.pieces.forEach(it => it.disconnect());
+    this.pieces.forEach((it) => it.disconnect());
   }
 
   autoconnectWith(piece: Piece): void {
-    this.pieces.filter(it => it !== piece).forEach(other => {
-      piece.tryConnectWith(other);
-      other.tryConnectWith(piece, true);
-    });
+    this.pieces
+      .filter((it) => it !== piece)
+      .forEach((other) => {
+        piece.tryConnectWith(other);
+        other.tryConnectWith(piece, true);
+      });
   }
 
   shuffle(maxX: number, maxY: number): void {
@@ -94,41 +107,45 @@ export default class Puzzle {
   }
 
   translate(dx: number, dy: number): void {
-    this.pieces.forEach(it => it.translate(dx, dy));
+    this.pieces.forEach((it) => it.translate(dx, dy));
   }
 
   reframe(min: Vector, max: Vector): void {
     let dx: number;
-    const leftOffstage = min.x - Math.min(...this.pieces.map(it => it.leftAnchor.x));
+    const leftOffstage =
+      min.x - Math.min(...this.pieces.map((it) => it.leftAnchor.x));
     if (leftOffstage > 0) {
       dx = leftOffstage;
     } else {
-      const rightOffstage = max.x - Math.max(...this.pieces.map(it => it.rightAnchor.x));
-      dx = rightOffstage < 0 ? rightOffstage : 0;
+      const rightOffstage =
+        max.x - Math.max(...this.pieces.map((it) => it.rightAnchor.x));
+      dx = Math.min(rightOffstage, 0);
     }
 
     let dy: number;
-    const upOffstage = min.y - Math.min(...this.pieces.map(it => it.upAnchor.y));
+    const upOffstage =
+      min.y - Math.min(...this.pieces.map((it) => it.upAnchor.y));
     if (upOffstage > 0) {
       dy = upOffstage;
     } else {
-      const downOffstage = max.y - Math.max(...this.pieces.map(it => it.downAnchor.y));
-      dy = downOffstage < 0 ? downOffstage : 0;
+      const downOffstage =
+        max.y - Math.max(...this.pieces.map((it) => it.downAnchor.y));
+      dy = Math.min(downOffstage, 0);
     }
 
     this.translate(dx, dy);
   }
 
   onTranslate(f: TranslationListener): void {
-    this.pieces.forEach(it => it.onTranslate(f));
+    this.pieces.forEach((it) => it.onTranslate(f));
   }
 
   onConnect(f: ConnectionListener): void {
-    this.pieces.forEach(it => it.onConnect(f));
+    this.pieces.forEach((it) => it.onConnect(f));
   }
 
   onDisconnect(f: ConnectionListener): void {
-    this.pieces.forEach(it => it.onDisconnect(f));
+    this.pieces.forEach((it) => it.onDisconnect(f));
   }
 
   onValid(f: ValidationListener): void {
@@ -136,7 +153,7 @@ export default class Puzzle {
   }
 
   get points(): Pair[] {
-    return this.pieces.map(it => it.centralAnchor!.asPair());
+    return this.pieces.map((it) => it.centralAnchor!.asPair());
   }
 
   get refs(): Pair[] {
@@ -146,8 +163,8 @@ export default class Puzzle {
     });
   }
 
-  get metadata(): any[] {
-    return this.pieces.map(it => it.metadata);
+  get metadata(): PieceMetadata[] {
+    return this.pieces.map((it) => it.metadata);
   }
 
   get head(): Piece {
@@ -166,11 +183,15 @@ export default class Puzzle {
     return this.horizontalConnector.requirement;
   }
 
-  attachHorizontalConnectionRequirement(requirement: ConnectionRequirement): void {
+  attachHorizontalConnectionRequirement(
+    requirement: ConnectionRequirement,
+  ): void {
     this.horizontalConnector.attachRequirement(requirement);
   }
 
-  attachVerticalConnectionRequirement(requirement: ConnectionRequirement): void {
+  attachVerticalConnectionRequirement(
+    requirement: ConnectionRequirement,
+  ): void {
     this.verticalConnector.attachRequirement(requirement);
   }
 
@@ -204,7 +225,7 @@ export default class Puzzle {
   }
 
   get connected(): boolean {
-    return this.pieces.every(it => it.connected);
+    return this.pieces.every((it) => it.connected);
   }
 
   get pieceDiameter(): Vector {
@@ -235,13 +256,16 @@ export default class Puzzle {
     return {
       pieceRadius: this.pieceRadius,
       proximity: this.proximity,
-      pieces: this.pieces.map(it => it.export(options))
+      pieces: this.pieces.map((it) => it.export(options)),
     };
   }
 
   static import(dump: PuzzleDump): Puzzle {
-    const puzzle = new Puzzle({ pieceRadius: dump.pieceRadius, proximity: dump.proximity });
-    puzzle.addPieces(dump.pieces.map(it => Piece.import(it)));
+    const puzzle = new Puzzle({
+      pieceRadius: dump.pieceRadius,
+      proximity: dump.proximity,
+    });
+    puzzle.addPieces(dump.pieces.map((it) => Piece.import(it)));
     puzzle.autoconnect();
     return puzzle;
   }

@@ -1,4 +1,6 @@
 [![Build Status](https://github.com/flbulgarelli/headbreaker/actions/workflows/ci.yml/badge.svg)](https://github.com/flbulgarelli/headbreaker/actions)
+[![Maintainability](https://api.codeclimate.com/v1/badges/d8498f33969b9c41e3f4/maintainability)](https://codeclimate.com/github/flbulgarelli/headbreaker/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/d8498f33969b9c41e3f4/test_coverage)](https://codeclimate.com/github/flbulgarelli/headbreaker/test_coverage)
 
 # 🧩 🤯 Headbreaker
 

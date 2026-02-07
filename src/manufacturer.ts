@@ -1,15 +1,17 @@
-import Puzzle from './puzzle';
-import Piece from './piece';
-import { Anchor, anchor } from './anchor';
-import { fixed, InsertSequence, type InsertsGenerator } from './sequence';
-import * as Metadata from './metadata';
-import type { Vector } from './vector';
+import Puzzle from "./puzzle";
+import type { Settings } from "./puzzle";
+import Piece from "./piece";
+import type { PieceMetadata } from "./piece";
+import { Anchor, anchor } from "./anchor";
+import { fixed, InsertSequence, type InsertsGenerator } from "./sequence";
+import * as Metadata from "./metadata";
+import type { Vector } from "./vector";
 
 export default class Manufacturer {
   insertsGenerator: InsertsGenerator;
-  metadata: any[];
+  metadata: Partial<PieceMetadata>[];
   headAnchor: Anchor | null;
-  structure: any;
+  structure: Settings;
   width!: number;
   height!: number;
 
@@ -17,9 +19,10 @@ export default class Manufacturer {
     this.insertsGenerator = fixed;
     this.metadata = [];
     this.headAnchor = null;
+    this.structure = {};
   }
 
-  withMetadata(metadata: any[]): void {
+  withMetadata(metadata: Partial<PieceMetadata>[]): void {
     this.metadata = metadata;
   }
 
@@ -31,7 +34,7 @@ export default class Manufacturer {
     this.headAnchor = a;
   }
 
-  withStructure(structure: any): void {
+  withStructure(structure: Settings): void {
     this.structure = structure;
   }
 
@@ -53,7 +56,11 @@ export default class Manufacturer {
 
       for (let x = 0; x < this.width; x++) {
         horizontalSequence.next();
-        const piece = this._buildPiece(puzzle, horizontalSequence, verticalSequence);
+        const piece = this._buildPiece(
+          puzzle,
+          horizontalSequence,
+          verticalSequence,
+        );
         piece.centerAround(positioner.naturalAnchor(x, y));
       }
     }
@@ -67,7 +74,9 @@ export default class Manufacturer {
 
   private _annotate(piece: Piece, index: number): void {
     const baseMetadata = this.metadata[index];
-    const metadata = baseMetadata ? Metadata.copy(baseMetadata) : {} as any;
+    const metadata: Partial<PieceMetadata> = baseMetadata
+      ? Metadata.copy(baseMetadata)
+      : {};
     metadata.id = metadata.id || String(index + 1);
     piece.annotate(metadata);
   }
@@ -76,12 +85,16 @@ export default class Manufacturer {
     return new InsertSequence(this.insertsGenerator);
   }
 
-  private _buildPiece(puzzle: Puzzle, horizontalSequence: InsertSequence, verticalSequence: InsertSequence): Piece {
+  private _buildPiece(
+    puzzle: Puzzle,
+    horizontalSequence: InsertSequence,
+    verticalSequence: InsertSequence,
+  ): Piece {
     return puzzle.newPiece({
       left: horizontalSequence.previousComplement(),
       up: verticalSequence.previousComplement(),
       right: horizontalSequence.current(this.width),
-      down: verticalSequence.current(this.height)
+      down: verticalSequence.current(this.height),
     });
   }
 }
@@ -106,7 +119,7 @@ class Positioner {
   naturalAnchor(x: number, y: number): Anchor {
     return anchor(
       x * this.pieceDiameter.x + this.offset.x,
-      y * this.pieceDiameter.y + this.offset.y
+      y * this.pieceDiameter.y + this.offset.y,
     );
   }
 }

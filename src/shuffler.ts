@@ -1,19 +1,19 @@
-import { Anchor } from './anchor';
-import type Piece from './piece';
-import type { Vector } from './vector';
+import { Anchor } from "./anchor";
+import type Piece from "./piece";
+import type { Vector } from "./vector";
 
 export type Shuffler = (pieces: Piece[]) => Vector[];
 
-function sampleIndex(list: any[]): number {
+function sampleIndex(list: unknown[]): number {
   return Math.round(Math.random() * (list.length - 1));
 }
 
 export function random(maxX: number, maxY: number): Shuffler {
-  return (pieces) => pieces.map(_it => Anchor.atRandom(maxX, maxY));
+  return (pieces) => pieces.map((_it) => Anchor.atRandom(maxX, maxY));
 }
 
 export const grid: Shuffler = (pieces) => {
-  const destinations = pieces.map(it => it.centralAnchor!.asVector());
+  const destinations = pieces.map((it) => it.centralAnchor!.asVector());
   for (let i = 0; i < destinations.length; i++) {
     const j = sampleIndex(destinations);
     const temp = destinations[j];
@@ -24,12 +24,15 @@ export const grid: Shuffler = (pieces) => {
 };
 
 export const columns: Shuffler = (pieces) => {
-  const destinations = pieces.map(it => it.centralAnchor!.asVector());
+  const destinations = pieces.map((it) => it.centralAnchor!.asVector());
   const columnsMap = new Map<number, Vector[]>();
 
   for (const destination of destinations) {
     if (!columnsMap.get(destination.x)) {
-      columnsMap.set(destination.x, destinations.filter(it => it.x === destination.x));
+      columnsMap.set(
+        destination.x,
+        destinations.filter((it) => it.x === destination.x),
+      );
     }
     const column = columnsMap.get(destination.x)!;
     const j = sampleIndex(column);
@@ -41,15 +44,15 @@ export const columns: Shuffler = (pieces) => {
 };
 
 export const line: Shuffler = (pieces) => {
-  const destinations = pieces.map(it => it.centralAnchor!.asVector());
-  const cols = new Set(destinations.map(it => it.x));
+  const destinations = pieces.map((it) => it.centralAnchor!.asVector());
+  const cols = new Set(destinations.map((it) => it.x));
   const maxX = Math.max(...cols);
   const minX = Math.min(...cols);
   const width = (maxX - minX) / (cols.size - 1);
-  const pivotX = minX + (width / 2);
+  const pivotX = minX + width / 2;
 
   const lineLength = destinations.length * width;
-  const linePivot = destinations.filter(it => it.x < pivotX).length * width;
+  const linePivot = destinations.filter((it) => it.x < pivotX).length * width;
 
   const init: number[] = [];
   const tail: number[] = [];
@@ -71,9 +74,13 @@ export const line: Shuffler = (pieces) => {
   return destinations;
 };
 
-export function padder(padding: number, width: number, height: number): Shuffler {
+export function padder(
+  padding: number,
+  width: number,
+  height: number,
+): Shuffler {
   return (pieces) => {
-    const destinations = pieces.map(it => it.centralAnchor!.asVector());
+    const destinations = pieces.map((it) => it.centralAnchor!.asVector());
     let dx = 0;
     let dy = 0;
     for (let j = 0; j < height; j++) {
@@ -92,13 +99,13 @@ export function padder(padding: number, width: number, height: number): Shuffler
 
 export function noise(maxDistance: Vector): Shuffler {
   return (pieces) => {
-    return pieces.map(it =>
-      Anchor
-        .atRandom(2 * maxDistance.x, 2 * maxDistance.y)
+    return pieces.map((it) =>
+      Anchor.atRandom(2 * maxDistance.x, 2 * maxDistance.y)
         .translate(-maxDistance.x, -maxDistance.y)
         .translate(it.centralAnchor!.x, it.centralAnchor!.y)
-        .asVector());
+        .asVector(),
+    );
   };
 }
 
-export const noop: Shuffler = (pieces) => pieces.map(it => it.centralAnchor!);
+export const noop: Shuffler = (pieces) => pieces.map((it) => it.centralAnchor!);
