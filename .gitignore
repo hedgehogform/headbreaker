@@ -3,4 +3,5 @@ node_modules/**
 dist/**
 site/**
 docs/api/**
+docs/js/headbreaker.js.map
 *.tsbuildinfo

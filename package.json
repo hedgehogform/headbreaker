@@ -1,15 +1,15 @@
 {
   "name": "headbreaker",
   "version": "4.0.0",
-  "description": "Jigsaw puzzles library for js",
-  "main": "dist/headbreaker.js",
-  "module": "dist/headbreaker.mjs",
-  "types": "dist/headbreaker.d.ts",
+  "description": "Jigsaw puzzles library written in TypeScript",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/headbreaker.d.ts",
-      "import": "./dist/headbreaker.mjs",
-      "require": "./dist/headbreaker.js"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
     }
   },
   "files": [

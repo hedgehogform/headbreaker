@@ -1,20 +1,19 @@
-[![Build Status](https://travis-ci.com/flbulgarelli/headbreaker.svg?branch=master)](https://travis-ci.com/flbulgarelli/headbreaker)
-[![Code Climate](https://codeclimate.com/github/flbulgarelli/headbreaker/badges/gpa.svg)](https://codeclimate.com/github/flbulgarelli/headbreaker)
-[![Test Coverage](https://codeclimate.com/github/flbulgarelli/headbreaker/badges/coverage.svg)](https://codeclimate.com/github/flbulgarelli/headbreaker)
+[![Build Status](https://github.com/flbulgarelli/headbreaker/actions/workflows/ci.yml/badge.svg)](https://github.com/flbulgarelli/headbreaker/actions)
 
 # 🧩 🤯 Headbreaker
 
-> Jigsaw Puzzles Framework for JavaScript
+> Jigsaw Puzzles Framework written in TypeScript
 
-`headbreaker` - a Spanish pun for _rompecabezas_ - is a JavaScript framework for building all kind of jigsaw puzzles.
+`headbreaker` - a Spanish pun for _rompecabezas_ - is a TypeScript framework for building all kind of jigsaw puzzles.
 
 ## ☑️ Features
 
- * 100% pure JavaScript
+ * Written in TypeScript with full type declarations
  * Headless support domain-model
- * Highly tested
+ * Highly tested with Vitest
  * Customizable data-model
- * Zero-dependencies - although Konva.js is used a a rendering backed, it is an optional dependency which can be replaced with custom code
+ * Zero-dependencies - although Konva.js is used as a rendering backend, it is an optional dependency which can be replaced with custom code
+ * ES Module, CommonJS, and IIFE (browser global) output formats
 
 ## 📦 Installing
 
@@ -76,7 +75,7 @@ However, there is a lot more that `headbreaker` can do for you. These are some o
   * It implements a jigsaw-like data-structure, which can be used in tasks like modelling, traversing, importing and exporting and - of course - rendering. This data-structure is 100% pure JavaScript, with no dependencies, and can be used both in browsers and headless environments.
   * It implements a simple and generic rendering system for the Web. `headbreaker` also ships a 100% functional [Konva.js](https://konvajs.org/)-based implementation, but you may want to develop and use your own implementation.
 
-`headbreaker` is designed to be included and compiled in your project as a `node` module, but you can also import it directly in your static pages from [https://flbulgarelli.github.io/headbreaker/js/headbreaker.js](`https://flbulgarelli.github.io/headbreaker/js/headbreaker.js`).
+`headbreaker` is designed to be included and compiled in your project as a `node` module, but you can also import it directly in your static pages from [`https://flbulgarelli.github.io/headbreaker/js/headbreaker.js`](https://flbulgarelli.github.io/headbreaker/js/headbreaker.js).
 
 ### HTML Puzzle
 
@@ -119,10 +118,14 @@ Headbreaker provides a `Puzzle` object which allows to fully manipulate its mode
 to any visual representation, it can be even loaded in headless environments, like in a `node` server:
 
 ```javascript
-const headbreaker = require('headbreaker');
+// ES module import
+import { Puzzle, Tab, Slot, vector } from 'headbreaker';
+
+// Or CommonJS
+// const { Puzzle, Tab, Slot, vector } = require('headbreaker');
 
 // Create a puzzle
-const puzzle = new headbreaker.Puzzle();
+const puzzle = new Puzzle();
 puzzle
   .newPiece({right: Tab})
   .locateAt(0, 0);
@@ -183,14 +186,14 @@ puzzle.clearConnectionRequirements();
 
 // Export and import puzzle
 const dump = puzzle.export();
-const otherPuzzle = headbreaker.Puzzle.import(dump);
+const otherPuzzle = Puzzle.import(dump);
 ```
 
 ## React Puzzle
 
 > Check also [https://github.com/flbulgarelli/headbreaker-react-sample](https://github.com/flbulgarelli/headbreaker-react-sample)
 
-```jsx
+```tsx
 import { Canvas, painters } from 'headbreaker';
 import { useEffect, useRef } from 'react';
 
@@ -298,11 +301,14 @@ Do you have any questions or doubts? Please feel free to check [the existing dis
 # install project
 $ npm install
 # run tests
-$ npm run test
-# build whole project
+$ npm test
+# type-check
+$ npm run typecheck
+# build library (CJS + ESM + DTS + IIFE for docs)
+$ npm run build
+# run all checks and build
 $ npm run all
-# start docs site locally
-# requires mkdocs
+# start docs site locally (requires mkdocs)
 $ mkdocs serve
 ```
 

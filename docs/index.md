@@ -48,7 +48,7 @@ basic.sketchPiece({
   metadata: { id: 'g', currentPosition: { x: 100, y: 230 } }
 });
 // ... more pieces ...
-basic.draw();.
+basic.draw();
 ```
 
 ### Demo
