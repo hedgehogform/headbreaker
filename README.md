@@ -121,74 +121,74 @@ to any visual representation, it can be even loaded in headless environments, li
 
 ```javascript
 // ES module import
-import { Puzzle, Tab, Slot, vector } from 'headbreaker';
+import { Puzzle, Slot, Tab, vector } from 'headbreaker'
 
 // Or CommonJS
 // const { Puzzle, Tab, Slot, vector } = require('headbreaker');
 
 // Create a puzzle
-const puzzle = new Puzzle();
+const puzzle = new Puzzle()
 puzzle
-  .newPiece({right: Tab})
-  .locateAt(0, 0);
+  .newPiece({ right: Tab })
+  .locateAt(0, 0)
 puzzle
-  .newPiece({left: Slot, right: Tab})
-  .locateAt(3, 0);
+  .newPiece({ left: Slot, right: Tab })
+  .locateAt(3, 0)
 puzzle
-  .newPiece({left: Slot, right: Tab, down: Slot})
-  .locateAt(6, 0);
+  .newPiece({ left: Slot, right: Tab, down: Slot })
+  .locateAt(6, 0)
 puzzle
-  .newPiece({up: Tab})
-  .locateAt(6, 3);
+  .newPiece({ up: Tab })
+  .locateAt(6, 3)
 
 // Connect puzzle's nearby pieces
-puzzle.autoconnect();
+puzzle.autoconnect()
 
 // Translate puzzle
-puzzle.translate(10, 10);
+puzzle.translate(10, 10)
 
 // Shuffle pieces
-puzzle.shuffle(100, 100);
+puzzle.shuffle(100, 100)
 
 // Relocate pieces to fit into a bounding box
 // while preserving their relative positions, if possible
-puzzle.reframe(vector(0, 0), vector(20, 20));
+puzzle.reframe(vector(0, 0), vector(20, 20))
 
 // Directly manipulate pieces
-const [a, b, c, d] = puzzle.pieces;
+const [a, b, c, d] = puzzle.pieces
 
 // Drag a piece 10 steps right and 5 steps down
-a.drag(10, 5);
+a.drag(10, 5)
 
 // Connect two pieces (if possible)
-a.tryConnectWith(b);
+a.tryConnectWith(b)
 
 // Add custom metadata to pieces
-a.metadata.flavour = "chocolate";
-a.metadata.sugar = true;
-b.metadata.flavour = "chocolate";
-b.metadata.sugar = false;
+a.metadata.flavour = 'chocolate'
+a.metadata.sugar = true
+b.metadata.flavour = 'chocolate'
+b.metadata.sugar = false
 
-c.metadata.flavour = "vainilla";
-c.metadata.sugar = false;
-d.metadata.flavour = "vainilla";
-d.metadata.sugar = true;
+c.metadata.flavour = 'vainilla'
+c.metadata.sugar = false
+d.metadata.flavour = 'vainilla'
+d.metadata.sugar = true
 
 // Require pieces to match a given condition in
 // order to be connected
-puzzle.attachConnectionRequirement((one, other) => one.metadata.flavour === other.metadata.flavour);
+puzzle.attachConnectionRequirement((one, other) => one.metadata.flavour === other.metadata.flavour)
 
 // Alternatively, set individual requirements for horizontal
 // and vertical connections
-puzzle.attachVerticalConnectionRequirement((one, other) => one.metadata.flavour === other.metadata.flavour);
-puzzle.attachHorizontalConnectionRequirement((one, other) => one.metadata.sugar !== other.metadata.sugar);
+puzzle.attachVerticalConnectionRequirement((one, other) => one.metadata.flavour === other.metadata.flavour)
+puzzle.attachHorizontalConnectionRequirement((one, other) => one.metadata.sugar !== other.metadata.sugar)
 
 // Remove all - vertical and horizontal - connection requirements
-puzzle.clearConnectionRequirements();
+puzzle.clearConnectionRequirements()
 
 // Export and import puzzle
-const dump = puzzle.export();
-const otherPuzzle = Puzzle.import(dump);
+const dump = puzzle.export()
+const otherPuzzle = Puzzle.import(dump)
 ```
 
 ## React Puzzle
@@ -196,22 +196,24 @@ const otherPuzzle = Puzzle.import(dump);
 > Check also [https://github.com/flbulgarelli/headbreaker-react-sample](https://github.com/flbulgarelli/headbreaker-react-sample)
 
 ```tsx
-import { Canvas, painters } from 'headbreaker';
-import { useEffect, useRef } from 'react';
-
+import { Canvas, painters } from 'headbreaker'
+import { useEffect, useRef } from 'react'
 
 function DemoPuzzle({ id }) {
   const puzzleRef = useRef(null)
 
-
   useEffect(() => {
     const puzzle = puzzleRef.current
     const canvas = new Canvas(puzzle.id, {
-      width: 800, height: 650,
-      pieceSize: 100, proximity: 20,
-      borderFill: 10, strokeWidth: 2, lineSoftness: 0.18,
+      width: 800,
+      height: 650,
+      pieceSize: 100,
+      proximity: 20,
+      borderFill: 10,
+      strokeWidth: 2,
+      lineSoftness: 0.18,
       painter: new painters.Konva() // <-- this is important. See https://github.com/flbulgarelli/headbreaker/issues/51
-    });
+    })
 
     canvas.autogenerate({
       horizontalPiecesCount: 2,
@@ -222,9 +224,9 @@ function DemoPuzzle({ id }) {
         { color: '#A4C234' },
         { color: '#37AB8C' }
       ]
-    });
+    })
 
-    canvas.draw();
+    canvas.draw()
   }, [])
 
   return <div ref={puzzleRef} id={id}></div>

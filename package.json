@@ -2,9 +2,16 @@
   "name": "headbreaker",
   "version": "4.0.0",
   "description": "Jigsaw puzzles library written in TypeScript",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
+  "author": "Franco Leonardo Bulgarelli",
+  "license": "ISC",
+  "homepage": "https://github.com/flbulgarelli/headbreaker#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/flbulgarelli/headbreaker.git"
+  },
+  "bugs": {
+    "url": "https://github.com/flbulgarelli/headbreaker/issues"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -12,6 +19,9 @@
       "require": "./dist/index.js"
     }
   },
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
@@ -20,24 +30,20 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
-    "all": "npm run typecheck && npm test && npm run build"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/flbulgarelli/headbreaker.git"
-  },
-  "author": "Franco Leonardo Bulgarelli",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/flbulgarelli/headbreaker/issues"
-  },
-  "homepage": "https://github.com/flbulgarelli/headbreaker#readme",
-  "devDependencies": {
-    "tsup": "^8.4.0",
-    "typescript": "^5.7.3",
-    "vitest": "^4.0.18"
+    "all": "npm run typecheck && npm test && npm run build",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "optionalDependencies": {
     "konva": "^9.0.0"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^7.3.0",
+    "eslint": "^9.10.0",
+    "jiti": "^2.6.1",
+    "tsup": "^8.4.0",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.54.0",
+    "vitest": "^4.0.18"
   }
 }

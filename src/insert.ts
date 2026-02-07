@@ -1,11 +1,11 @@
 export interface Insert {
-  isSlot(): boolean;
-  isTab(): boolean;
-  isNone(): boolean;
-  match(other: Insert): boolean;
-  toString(): string;
-  complement(): Insert;
-  serialize(): string;
+  isSlot: () => boolean
+  isTab: () => boolean
+  isNone: () => boolean
+  match: (other: Insert) => boolean
+  toString: () => string
+  complement: () => Insert
+  serialize: () => string
 }
 
 export const Tab: Insert = {
@@ -15,8 +15,8 @@ export const Tab: Insert = {
   match: (other: Insert) => other.isSlot(),
   toString: () => 'Tab',
   complement: () => Slot,
-  serialize: () => 'T'
-};
+  serialize: () => 'T',
+}
 
 export const Slot: Insert = {
   isSlot: () => true,
@@ -25,8 +25,8 @@ export const Slot: Insert = {
   match: (other: Insert) => other.isTab(),
   toString: () => 'Slot',
   complement: () => Tab,
-  serialize: () => 'S'
-};
+  serialize: () => 'S',
+}
 
 export const None: Insert = {
   isSlot: () => false,
@@ -35,5 +35,5 @@ export const None: Insert = {
   match: (_other: Insert) => false,
   toString: () => 'None',
   complement: () => None,
-  serialize: () => '-'
-};
+  serialize: () => '-',
+}
