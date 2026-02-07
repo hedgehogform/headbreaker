@@ -3,7 +3,7 @@ import { anchor, Anchor } from "./anchor";
 import { None, type Insert } from "./insert";
 import { Connector } from "./connector";
 import * as Structure from "./structure";
-import { itself, orthogonalTransform } from "./prelude";
+import { itself, orthogonalTransform, type Orthogonal } from "./prelude";
 import type { Vector } from "./vector";
 import type { Size } from "./size";
 import type Puzzle from "./puzzle";
@@ -26,7 +26,7 @@ export interface LabelMetadata {
 }
 
 export interface PieceMetadata {
-  id: string;
+  id: string | number;
   targetPosition: Vector;
   currentPosition: Vector;
   color?: string;
@@ -45,14 +45,14 @@ export interface PieceConfig {
 }
 
 export interface PieceConnectionDump {
-  id: string;
+  id: string | number | undefined;
 }
 
 export interface PieceDump {
   centralAnchor: Vector | null;
   size?: { radius: Vector };
   metadata: Partial<PieceMetadata>;
-  connections?: (PieceConnectionDump | null)[];
+  connections?: Orthogonal<PieceConnectionDump | null | undefined>;
   structure: string;
 }
 
@@ -109,12 +109,12 @@ export default class Piece {
     }
   }
 
-  annotate(metadata: Partial<PieceMetadata>): void {
+  annotate(metadata: Partial<PieceMetadata> | null | undefined): void {
     Object.assign(this.metadata, metadata);
   }
 
-  reannotate(metadata: PieceMetadata): void {
-    this.metadata = metadata;
+  reannotate(metadata: Partial<PieceMetadata>): void {
+    this.metadata = metadata as PieceMetadata;
   }
 
   belongTo(puzzle: Puzzle): void {
@@ -361,7 +361,7 @@ export default class Piece {
     return this.puzzle.proximity;
   }
 
-  get id(): string {
+  get id(): string | number {
     return this.metadata.id;
   }
 

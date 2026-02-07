@@ -413,7 +413,7 @@ export default class Canvas {
     return this.getFigureById(piece.metadata.id);
   }
 
-  getFigureById(id: string): Figure {
+  getFigureById(id: string | number): Figure {
     return this.figures[id];
   }
 
@@ -448,6 +448,7 @@ export default class Canvas {
       }
     });
     this._painter.onDragEnd(this, piece, group, () => {
+      this.puzzle.validate();
       piece.drop();
       this.puzzle.validate();
       this.redraw();

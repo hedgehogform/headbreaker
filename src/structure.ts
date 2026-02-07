@@ -1,5 +1,5 @@
-import { Slot, Tab, None, type Insert } from './insert';
-import { orthogonalMap } from './prelude';
+import { Slot, Tab, None, type Insert } from "./insert";
+import { orthogonalMap } from "./prelude";
 
 export interface Structure {
   up?: Insert;
@@ -11,20 +11,22 @@ export interface Structure {
 export type StructureLike = Structure | string;
 
 function parseInsert(insert: string): Insert {
-  return insert === 'S' ? Slot : insert === 'T' ? Tab : None;
+  if (insert === "S") return Slot;
+  if (insert === "T") return Tab;
+  return None;
 }
 
 export function serialize(structure: Structure): string {
   return orthogonalMap(
     [structure.right, structure.down, structure.left, structure.up],
     (it: Insert) => it.serialize(),
-    None
-  ).join('');
+    None,
+  ).join("");
 }
 
 export function deserialize(str: string): Structure {
   if (str.length !== 4) {
-    throw new Error('structure string must be 4-chars long');
+    throw new Error("structure string must be 4-chars long");
   }
   return {
     right: parseInsert(str[0]),
@@ -35,7 +37,7 @@ export function deserialize(str: string): Structure {
 }
 
 export function asStructure(structureLike: StructureLike): Structure {
-  if (typeof structureLike === 'string') {
+  if (typeof structureLike === "string") {
     return deserialize(structureLike);
   }
   return structureLike;

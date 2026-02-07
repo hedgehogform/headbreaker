@@ -195,6 +195,53 @@ describe("puzzle", () => {
         });
       });
     });
+
+    describe("with connected validator", () => {
+      beforeEach(() => {
+        puzzle.attachValidator(new PuzzleValidator(PuzzleValidator.connected));
+      });
+
+      it("fires onValid again after disconnect and reconnect", () => {
+        let validCount = 0;
+        puzzle.onValid(() => validCount++);
+
+        // Initially connect all pieces and validate - onValid fires (1st time)
+        puzzle.autoconnect();
+        puzzle.validate();
+        expect(validCount).toBe(1);
+        expect(puzzle.valid).toBe(true);
+
+        // Simulate mid-drag disconnect (no validate during drag, matching real behavior)
+        const [a] = puzzle.pieces;
+        a.disconnect();
+        expect(puzzle.connected).toBe(false);
+
+        // Simulate fixed drag-end: validate (records invalid), drop (reconnects), validate (fires onValid)
+        puzzle.validate();
+        expect(puzzle.valid).toBe(false);
+        a.drop();
+        puzzle.validate();
+        expect(validCount).toBe(2);
+        expect(puzzle.valid).toBe(true);
+      });
+
+      it("does not fire extra onValid when puzzle stays connected", () => {
+        let validCount = 0;
+        puzzle.onValid(() => validCount++);
+
+        // Connect and validate - onValid fires once
+        puzzle.autoconnect();
+        puzzle.validate();
+        expect(validCount).toBe(1);
+
+        // Simulate drag-end without disconnect: validate, drop, validate
+        // Puzzle was never invalid, so onValid should NOT fire again
+        puzzle.validate();
+        puzzle.pieces[0].drop();
+        puzzle.validate();
+        expect(validCount).toBe(1);
+      });
+    });
   });
 
   describe("exports", () => {

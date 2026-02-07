@@ -1,6 +1,6 @@
-import type Puzzle from './puzzle';
-import type Piece from './piece';
-import * as Pair from './pair';
+import type Puzzle from "./puzzle";
+import type Piece from "./piece";
+import * as Pair from "./pair";
 
 export type ValidationListener = (puzzle: Puzzle) => void;
 export type PieceCondition = (piece: Piece) => boolean;
@@ -31,7 +31,7 @@ abstract class AbstractValidator {
   abstract isValid(puzzle: Puzzle): boolean;
 
   fireValid(puzzle: Puzzle): void {
-    this.validListeners.forEach(it => it(puzzle));
+    this.validListeners.forEach((it) => it(puzzle));
   }
 
   onValid(f: ValidationListener): void {
@@ -56,7 +56,7 @@ export class PieceValidator extends AbstractValidator {
   }
 
   isValid(puzzle: Puzzle): boolean {
-    return puzzle.pieces.every(it => this.condition(it));
+    return puzzle.pieces.every((it) => this.condition(it));
   }
 }
 
@@ -72,23 +72,26 @@ export class PuzzleValidator extends AbstractValidator {
     return this.condition(puzzle);
   }
 
-  static DIFF_DELTA = 0.01;
+  static readonly DIFF_DELTA = 0.01;
 
   static equalDiffs([dx0, dy0]: Pair.Pair, [dx, dy]: Pair.Pair): boolean {
     return Pair.equal(dx0, dy0, dx, dy, PuzzleValidator.DIFF_DELTA);
   }
 
-  static connected: PuzzleCondition = (puzzle: Puzzle) => puzzle.connected;
+  static readonly connected: PuzzleCondition = (puzzle: Puzzle) =>
+    puzzle.connected;
 
   static relativeRefs(expected: Pair.Pair[]): PuzzleCondition {
+    function d(x: number, y: number, index: number): Pair.Pair {
+      return Pair.diff(x, y, ...expected[index]);
+    }
     return (puzzle: Puzzle) => {
-      function d(x: number, y: number, index: number): Pair.Pair {
-        return Pair.diff(x, y, ...expected[index]);
-      }
       const refs = puzzle.refs;
       const [x0, y0] = refs[0];
       const diff0 = d(x0, y0, 0);
-      return refs.every(([x, y], index) => PuzzleValidator.equalDiffs(diff0, d(x, y, index)));
+      return refs.every(([x, y], index) =>
+        PuzzleValidator.equalDiffs(diff0, d(x, y, index)),
+      );
     };
   }
 }
