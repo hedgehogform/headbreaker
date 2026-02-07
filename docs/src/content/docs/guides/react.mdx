@@ -1,0 +1,60 @@
+---
+title: React Integration
+description: Embed headbreaker puzzles in React applications.
+draft: false
+---
+
+import { LinkCard } from '@astrojs/starlight/components';
+
+<LinkCard title="Full sample project" href="https://github.com/flbulgarelli/headbreaker-react-sample" />
+
+## Example component
+
+```tsx
+import { Canvas, painters } from 'headbreaker';
+import { useEffect, useRef } from 'react';
+
+function DemoPuzzle({ id }) {
+  const puzzleRef = useRef(null)
+
+  useEffect(() => {
+    const puzzle = puzzleRef.current
+    const canvas = new Canvas(puzzle.id, {
+      width: 800, height: 650,
+      pieceSize: 100, proximity: 20,
+      borderFill: 10, strokeWidth: 2, lineSoftness: 0.18,
+      painter: new painters.Konva()
+      // ^ this is important — see
+      // https://github.com/flbulgarelli/headbreaker/issues/51
+    });
+
+    canvas.autogenerate({
+      horizontalPiecesCount: 2,
+      verticalPiecesCount: 2,
+      metadata: [
+        { color: '#B83361' },
+        { color: '#B87D32' },
+        { color: '#A4C234' },
+        { color: '#37AB8C' }
+      ]
+    });
+
+    canvas.draw();
+  }, [])
+
+  return <div ref={puzzleRef} id={id}></div>
+}
+
+export default function Home() {
+  return (
+    <main>
+      <h1>Headbreaker From React</h1>
+      <DemoPuzzle id="puzzle" />
+    </main>
+  )
+}
+```
+
+:::note
+When using headbreaker inside a framework like React, always pass `painter: new painters.Konva()` explicitly to ensure the Konva rendering backend is initialized correctly.
+:::

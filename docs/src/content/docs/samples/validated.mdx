@@ -1,0 +1,91 @@
+---
+title: Validated
+description: Automatically validate when the puzzle is solved and show a completion overlay.
+draft: false
+---
+
+import DemoScript from '../../../components/DemoScript.astro';
+
+## Code
+
+```javascript
+let pettoruti = new Image();
+pettoruti.src = 'static/pettoruti.jpg';
+pettoruti.onload = () => {
+  const validated = new headbreaker.Canvas('validated-canvas', {
+    width: 800, height: 900,
+    pieceSize: 80, proximity: 18,
+    borderFill: 8, strokeWidth: 1.5,
+    lineSoftness: 0.18, image: pettoruti,
+    // used to stick canvas to its current position
+    fixed: true
+  });
+  validated.autogenerate({
+    horizontalPiecesCount: 5,
+    verticalPiecesCount: 8
+  });
+  validated.puzzle.pieces[4].translate(63, -56);
+  validated.draw();
+  validated.attachSolvedValidator();
+  validated.onValid(() => {
+    setTimeout(() => {
+      document.getElementById('validated-canvas-overlay')
+        .setAttribute("class", "active");
+    }, 1500);
+  })
+}
+```
+
+## Demo
+
+<div style="position:relative">
+  <div id="validated-canvas" class="demo-canvas"></div>
+  <img id="validated-canvas-overlay" src="/headbreaker/static/pettoruti.jpg" alt="Puzzle completion overlay showing the solved artwork" />
+</div>
+<div class="demo-buttons not-content">
+  <button id="validated-shuffle">Shuffle</button>
+  <button id="validated-shuffle-grid">Shuffle Grid</button>
+  <button id="validated-shuffle-columns">Shuffle Columns</button>
+  <button id="validated-solve">Solve</button>
+</div>
+
+<DemoScript code={`
+document.addEventListener('DOMContentLoaded', function () {
+  function onClick(id, handler) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('click', function () { handler(); });
+  }
+  function registerButtons(id, canvas) {
+    onClick(id + '-shuffle', function () { canvas.shuffle(0.8); canvas.redraw(); });
+    onClick(id + '-shuffle-grid', function () { canvas.shuffleGrid(1.2); canvas.redraw(); });
+    onClick(id + '-shuffle-columns', function () { canvas.shuffleColumns(1.2); canvas.redraw(); });
+    onClick(id + '-solve', function () { canvas.solve(); canvas.redraw(); });
+  }
+  var pettoruti = new Image();
+  pettoruti.src = '/headbreaker/static/pettoruti.jpg';
+  pettoruti.onload = function () {
+    var validated = new headbreaker.Canvas('validated-canvas', {
+      width: 800, height: 900,
+      pieceSize: 80, proximity: 18,
+      borderFill: 8, strokeWidth: 1.5,
+      lineSoftness: 0.18, image: pettoruti,
+      fixed: true
+    });
+    validated.autogenerate({
+      horizontalPiecesCount: 5,
+      verticalPiecesCount: 8
+    });
+    validated.puzzle.pieces[4].translate(63, -56);
+    validated.draw();
+    validated.attachSolvedValidator();
+    validated.onValid(function () {
+      setTimeout(function () {
+        if (validated.puzzle.isValid()) {
+          document.getElementById('validated-canvas-overlay').setAttribute('class', 'active');
+        }
+      }, 1500);
+    });
+    registerButtons('validated', validated);
+  };
+});
+`} />

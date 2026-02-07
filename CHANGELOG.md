@@ -1,5 +1,26 @@
 # Changelog
 
+## [v4.0.0](https://github.com/flbulgarelli/headbreaker/tree/v4.0.0)
+
+[Full Changelog](https://github.com/flbulgarelli/headbreaker/compare/v2.0.0...v4.0.0)
+
+**Breaking changes:**
+
+- Migrated entire codebase from JavaScript to TypeScript
+- Replaced webpack with tsup — outputs CJS, ESM, IIFE, and `.d.ts` type declarations
+- Replaced Mocha with Vitest for testing
+- Package entry points changed: `dist/index.js` (CJS), `dist/index.mjs` (ESM), `dist/index.d.ts` (types)
+- New `painters` export (`{ Dummy, Konva }`) alongside individual `DummyPainter` / `KonvaPainter` exports
+- `Pair` and `Vector` now also exported as value namespaces (in addition to types)
+
+**Improvements:**
+
+- Full TypeScript type declarations shipped with the package
+- Eliminated unsafe `as any` casts via typed accessor pattern in connector
+- Added `insert` and `size` test suites — 271 tests across 14 test files
+- Conditional exports in `package.json` (`types`/`import`/`require`)
+- Source maps included for all output formats
+
 ## [v2.0.0](https://github.com/flbulgarelli/headbreaker/tree/v2.0.0) (2023-02-14)
 
 [Full Changelog](https://github.com/flbulgarelli/headbreaker/compare/v1.3.0...v2.0.0)

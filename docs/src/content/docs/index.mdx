@@ -1,0 +1,45 @@
+---
+title: Headbreaker
+description: Jigsaw Puzzles Framework written in TypeScript
+template: splash
+hero:
+  tagline: A TypeScript framework for building all kinds of jigsaw puzzles — headless or rendered.
+  image:
+    html: <span style="font-size:6rem">🧩</span>
+  actions:
+    - text: Get Started
+      link: /headbreaker/getting-started/
+      icon: right-arrow
+    - text: View Samples
+      link: /headbreaker/samples/basic/
+      variant: minimal
+draft: false
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+## Features
+
+<CardGrid stagger>
+  <Card title="Written in TypeScript" icon="seti:typescript">
+    Full type declarations for excellent IDE support and type safety.
+  </Card>
+  <Card title="Headless Support" icon="setting">
+    Pure domain model with zero dependencies — use it in browsers or Node.js servers.
+  </Card>
+  <Card title="Customizable Rendering" icon="pencil">
+    Ships with a Konva.js backend, but you can plug in your own renderer.
+  </Card>
+  <Card title="Rich Features" icon="puzzle">
+    Image backgrounds, sound, keyboard gestures, validation, import/export, and more.
+  </Card>
+</CardGrid>
+
+## Quick Links
+
+<CardGrid>
+  <LinkCard title="Getting Started" href="/headbreaker/getting-started/" description="Install and create your first puzzle in minutes." />
+  <LinkCard title="Headless Puzzle" href="/headbreaker/guides/headless/" description="Use the data model without any rendering." />
+  <LinkCard title="React Integration" href="/headbreaker/guides/react/" description="Embed puzzles in React apps." />
+  <LinkCard title="Vue Integration" href="/headbreaker/guides/vue/" description="Embed puzzles in Vue apps." />
+</CardGrid>
