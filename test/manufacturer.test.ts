@@ -12,7 +12,7 @@ describe('manufacturer', () => {
     const puzzle = manufacturer.build();
     const first = puzzle.pieces[0];
 
-    expect(puzzle.pieces.length).toBe(1);
+    expect(puzzle.pieces).toHaveLength(1);
     expect(first.up).toBe(None);
     expect(first.right).toBe(None);
     expect(first.down).toBe(None);
@@ -30,7 +30,7 @@ describe('manufacturer', () => {
     manufacturer.withHeadAt(anchor(-3, 5));
     const puzzle = manufacturer.build();
 
-    expect(puzzle.pieces.length).toBe(1);
+    expect(puzzle.pieces).toHaveLength(1);
     expect(puzzle.head.centralAnchor).toEqual(anchor(-3, 5));
   });
 
@@ -43,7 +43,7 @@ describe('manufacturer', () => {
     const first = puzzle.pieces[0];
     const second = puzzle.pieces[1];
 
-    expect(puzzle.pieces.length).toBe(2);
+    expect(puzzle.pieces).toHaveLength(2);
     expect(first.up).toBe(None);
     expect(first.right).toBe(Tab);
     expect(first.down).toBe(None);
@@ -62,7 +62,7 @@ describe('manufacturer', () => {
     const puzzle = manufacturer.build();
 
     const [first, second, third] = puzzle.pieces;
-    expect(puzzle.pieces.length).toBe(3);
+    expect(puzzle.pieces).toHaveLength(3);
 
     expect(first.up).toBe(None);
     expect(first.right).toBe(Tab);
@@ -90,7 +90,7 @@ describe('manufacturer', () => {
     const puzzle = manufacturer.build();
 
     const [first, second] = puzzle.pieces;
-    expect(puzzle.pieces.length).toBe(2);
+    expect(puzzle.pieces).toHaveLength(2);
 
     expect(first.up).toBe(None);
     expect(first.right).toBe(None);
@@ -112,7 +112,7 @@ describe('manufacturer', () => {
     const puzzle = manufacturer.build();
 
     const [a, b, c, d, e, f] = puzzle.pieces;
-    expect(puzzle.pieces.length).toBe(6);
+    expect(puzzle.pieces).toHaveLength(6);
 
     expect(a.up).toBe(None);
     expect(a.right).toBe(Tab);
@@ -152,7 +152,7 @@ describe('manufacturer', () => {
     const puzzle = manufacturer.build();
     const [a, b, c, d] = puzzle.pieces;
 
-    expect(puzzle.pieces.length).toBe(4);
+    expect(puzzle.pieces).toHaveLength(4);
 
     expect(a.up).toBe(None);
     expect(a.right).toBe(Tab);
@@ -187,7 +187,7 @@ describe('manufacturer', () => {
     const puzzle = manufacturer.build();
     const [a, b, c, d, e, f] = puzzle.pieces;
 
-    expect(puzzle.pieces.length).toBe(6);
+    expect(puzzle.pieces).toHaveLength(6);
     expect(a.right).toBe(Tab);
     expect(b.right).toBe(Slot);
     expect(c.right).toBe(Tab);

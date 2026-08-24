@@ -38,7 +38,7 @@ describe('canvas', () => {
     expect(canvas._nullLayer?.drawn).toBe(true);
     expect(!!canvas.figures[1]).toBe(false);
     expect(!!canvas.figures.a).toBe(true);
-    expect(canvas.puzzle.pieces.length).toBe(1);
+    expect(canvas.puzzle.pieces).toHaveLength(1);
     expect(canvas.puzzle.head.centralAnchor).toEqual({ x: 50, y: 50 });
   });
 
@@ -269,7 +269,7 @@ describe('canvas', () => {
     expect(!!canvas.figures['1']).toBe(true);
     expect(!!canvas.figures['16']).toBe(true);
     expect(!!canvas.figures['17']).toBe(false);
-    expect(canvas.puzzle.pieces.length).toBe(16);
+    expect(canvas.puzzle.pieces).toHaveLength(16);
   });
 
   it('can shuffle a puzzle', () => {
@@ -327,7 +327,7 @@ describe('canvas', () => {
     expect(canvas._drawn).toBe(false);
     expect(canvas._painter).toBe(painter);
     expect(canvas._puzzle).toBeNull();
-    expect(canvas.puzzle.pieces.length).toBe(0);
+    expect(canvas.puzzle.pieces).toHaveLength(0);
     expect(canvas.figures).toEqual({});
     expect(() => canvas.draw()).not.toThrow();
   });

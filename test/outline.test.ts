@@ -555,7 +555,8 @@ describe('rounded', () => {
   });
 
   it('works with ----, bezelized', () => {
-    expect(new Rounded({ bezelize: true }).draw(new Piece(), 150).length).toBe(98);
+    const points = new Rounded({ bezelize: true }).draw(new Piece(), 150);
+    expect(points).toHaveLength(98);
   });
 
   it('isBezier returns true', () => {
