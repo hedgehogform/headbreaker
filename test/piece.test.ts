@@ -174,12 +174,18 @@ describe('piece', () => {
     expect(piece.downAnchor).toEqual(anchor(0, 5));
   });
 
-  it('can check whether pieces are vertically close when overlapped', () => {
+  it.each([
+    { label: 'overlapped', location: [0, 0], forward: false, reverse: false },
+    { label: 'far away', location: [0, 20], forward: false, reverse: false },
+    { label: 'partially overlapped', location: [0, 2], forward: false, reverse: false },
+    { label: 'close', location: [0, 3], forward: true, reverse: false },
+  ] as const)('can check whether pieces are vertically close when $label', ({ location, forward, reverse }) => {
     const puzzle = new Puzzle();
     const a = puzzle.newPiece(); a.locateAt(0, 0);
-    const b = puzzle.newPiece(); b.locateAt(0, 0);
-    expect(a.verticallyCloseTo(b)).toBe(false);
-    expect(b.verticallyCloseTo(a)).toBe(false);
+    const b = puzzle.newPiece(); b.locateAt(...location);
+
+    expect(a.verticallyCloseTo(b)).toBe(forward);
+    expect(b.verticallyCloseTo(a)).toBe(reverse);
   });
 
   it('can check whether rectangular pieces are vertically close when overlapped', () => {
@@ -190,60 +196,18 @@ describe('piece', () => {
     expect(b.verticallyCloseTo(a)).toBe(false);
   });
 
-  it('can check whether pieces are horizontally close when overlapped', () => {
+  it.each([
+    { label: 'overlapped', location: [0, 0], forward: false, reverse: false },
+    { label: 'far away', location: [20, 0], forward: false, reverse: false },
+    { label: 'partially overlapped', location: [2, 0], forward: false, reverse: false },
+    { label: 'close', location: [3, 0], forward: true, reverse: false },
+  ] as const)('can check whether pieces are horizontally close when $label', ({ location, forward, reverse }) => {
     const puzzle = new Puzzle();
     const a = puzzle.newPiece(); a.locateAt(0, 0);
-    const b = puzzle.newPiece(); b.locateAt(0, 0);
-    expect(a.horizontallyCloseTo(b)).toBe(false);
-    expect(b.horizontallyCloseTo(a)).toBe(false);
-  });
+    const b = puzzle.newPiece(); b.locateAt(...location);
 
-  it('can check whether pieces are vertically close when far away', () => {
-    const puzzle = new Puzzle();
-    const a = puzzle.newPiece(); a.locateAt(0, 0);
-    const b = puzzle.newPiece(); b.locateAt(0, 20);
-    expect(a.verticallyCloseTo(b)).toBe(false);
-    expect(b.verticallyCloseTo(a)).toBe(false);
-  });
-
-  it('can check whether pieces are horizontally close when far away', () => {
-    const puzzle = new Puzzle();
-    const a = puzzle.newPiece(); a.locateAt(0, 0);
-    const b = puzzle.newPiece(); b.locateAt(20, 0);
-    expect(a.horizontallyCloseTo(b)).toBe(false);
-    expect(b.horizontallyCloseTo(a)).toBe(false);
-  });
-
-  it('can check whether pieces are vertically close when partially overlapped', () => {
-    const puzzle = new Puzzle();
-    const a = puzzle.newPiece(); a.locateAt(0, 0);
-    const b = puzzle.newPiece(); b.locateAt(0, 2);
-    expect(a.verticallyCloseTo(b)).toBe(false);
-    expect(b.verticallyCloseTo(a)).toBe(false);
-  });
-
-  it('can check whether pieces are horizontally close when partially overlapped', () => {
-    const puzzle = new Puzzle();
-    const a = puzzle.newPiece(); a.locateAt(0, 0);
-    const b = puzzle.newPiece(); b.locateAt(2, 0);
-    expect(a.horizontallyCloseTo(b)).toBe(false);
-    expect(b.horizontallyCloseTo(a)).toBe(false);
-  });
-
-  it('can check whether pieces are vertically close when close', () => {
-    const puzzle = new Puzzle();
-    const a = puzzle.newPiece(); a.locateAt(0, 0);
-    const b = puzzle.newPiece(); b.locateAt(0, 3);
-    expect(a.verticallyCloseTo(b)).toBe(true);
-    expect(b.verticallyCloseTo(a)).toBe(false);
-  });
-
-  it('can check whether pieces are horizontally close when close', () => {
-    const puzzle = new Puzzle();
-    const a = puzzle.newPiece(); a.locateAt(0, 0);
-    const b = puzzle.newPiece(); b.locateAt(3, 0);
-    expect(a.horizontallyCloseTo(b)).toBe(true);
-    expect(b.horizontallyCloseTo(a)).toBe(false);
+    expect(a.horizontallyCloseTo(b)).toBe(forward);
+    expect(b.horizontallyCloseTo(a)).toBe(reverse);
   });
 
   it('knows its positive inserts positions', () => {

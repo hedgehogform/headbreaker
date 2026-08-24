@@ -187,7 +187,10 @@ describe('puzzle', () => {
 
       it('can be validated using a validator', () => {
         return new Promise<void>((resolve) => {
-          puzzle.onValid(() => resolve());
+          puzzle.onValid(() => {
+            expect(puzzle.isValid()).toBe(true);
+            resolve();
+          });
           puzzle.validate();
           puzzle.head.drag(10, 10);
           puzzle.validate();
