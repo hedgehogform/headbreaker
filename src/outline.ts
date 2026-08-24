@@ -7,6 +7,7 @@
 
 import type { Insert } from './insert';
 import type Piece from './piece';
+import type { EdgeProfile, Side } from './shape';
 import type { Vector } from './vector';
 import * as VectorModule from './vector';
 
@@ -18,17 +19,54 @@ function select<T>(insert: Insert, t: T, s: T, n: T): T {
   return n;
 }
 
-function sl(p: Piece, t: number[], s: number[], n: number[]): number[] {
-  return select(p.left, t, s, n);
+function profile(piece: Piece, side: Side): EdgeProfile {
+  return piece.shape[side] ?? { offset: 0, width: 1, depth: 1 };
 }
-function sr(p: Piece, t: number[], s: number[], n: number[]): number[] {
-  return select(p.right, t, s, n);
+
+function scaleAroundCenter(start: number, end: number, amount: number): [number, number] {
+  const center = (start + end) / 2;
+  const half = ((end - start) * amount) / 2;
+  return [center - half, center + half];
 }
-function su(p: Piece, t: number[], s: number[], n: number[]): number[] {
-  return select(p.up, t, s, n);
+
+function verticalInsert(
+  piece: Piece,
+  side: 'left' | 'right',
+  baseX: number,
+  tabX: number,
+  slotX: number,
+  startY: number,
+  endY: number,
+): [number, number, number, number] {
+  const edgeProfile = profile(piece, side);
+  const [start, end] = scaleAroundCenter(startY, endY, edgeProfile.width);
+  const offset = edgeProfile.offset * (endY - startY);
+  return select(
+    piece[side],
+    [baseX + (tabX - baseX) * edgeProfile.depth, start + offset, baseX + (tabX - baseX) * edgeProfile.depth, end + offset],
+    [baseX + (slotX - baseX) * edgeProfile.depth, start + offset, baseX + (slotX - baseX) * edgeProfile.depth, end + offset],
+    [baseX, startY, baseX, endY],
+  );
 }
-function sd(p: Piece, t: number[], s: number[], n: number[]): number[] {
-  return select(p.down, t, s, n);
+
+function horizontalInsert(
+  piece: Piece,
+  side: 'up' | 'down',
+  baseY: number,
+  tabY: number,
+  slotY: number,
+  startX: number,
+  endX: number,
+): [number, number, number, number] {
+  const edgeProfile = profile(piece, side);
+  const [start, end] = scaleAroundCenter(startX, endX, edgeProfile.width);
+  const offset = edgeProfile.offset * (endX - startX);
+  return select(
+    piece[side],
+    [start + offset, baseY + (tabY - baseY) * edgeProfile.depth, end + offset, baseY + (tabY - baseY) * edgeProfile.depth],
+    [start + offset, baseY + (slotY - baseY) * edgeProfile.depth, end + offset, baseY + (slotY - baseY) * edgeProfile.depth],
+    [startX, baseY, endX, baseY],
+  );
 }
 
 /**
@@ -84,37 +122,45 @@ export class Squared implements Outline {
     );
     const selNum = (insert: Insert, t: number, s: number, n: number) =>
       select(insert, t, s, n);
+    const top = profile(piece, 'up');
+    const right = profile(piece, 'right');
+    const bottom = profile(piece, 'down');
+    const left = profile(piece, 'left');
+    const topX = 2 + top.offset * 2;
+    const rightY = 2 + right.offset * 2;
+    const bottomX = 2 + bottom.offset * 2;
+    const leftY = 2 + left.offset * 2;
     return [
       0 - offset.x,
       0 - offset.y,
       1,
       0 - offset.y,
-      2,
-      selNum(piece.up, -1 - offset.y, 1 - offset.y, 0 - offset.y),
+      topX,
+      selNum(piece.up, 0 - top.depth - offset.y, 0 + top.depth - offset.y, 0 - offset.y),
       3,
       0 - offset.y,
       4 + offset.x,
       0 - offset.y,
       4 + offset.x,
       1,
-      selNum(piece.right, 5 + offset.x, 3 + offset.x, 4 + offset.x),
-      2,
+      selNum(piece.right, 4 + right.depth + offset.x, 4 - right.depth + offset.x, 4 + offset.x),
+      rightY,
       4 + offset.x,
       3,
       4 + offset.x,
       4 + offset.y,
       3,
       4 + offset.y,
-      2,
-      selNum(piece.down, 5 + offset.y, 3 + offset.y, 4 + offset.y),
+      bottomX,
+      selNum(piece.down, 4 + bottom.depth + offset.y, 4 - bottom.depth + offset.y, 4 + offset.y),
       1,
       4 + offset.y,
       0 - offset.x,
       4 + offset.y,
       0 - offset.x,
       3,
-      selNum(piece.left, -1 - offset.x, 1 - offset.x, 0 - offset.x),
-      2,
+      selNum(piece.left, 0 - left.depth - offset.x, 0 + left.depth - offset.x, 0 - offset.x),
+      leftY,
       0 - offset.x,
       1,
     ].map(
@@ -229,7 +275,7 @@ export class Rounded implements Outline {
       s.y,
       0,
       s.y,
-      ...sl(p, [-o.x, s.y, -o.x, rsy], [o.x, s.y, o.x, rsy], [0, s.y, 0, rsy]),
+      ...verticalInsert(p, 'left', 0, -o.x, o.x, s.y, rsy),
       0,
       rsy,
       0,
@@ -245,12 +291,7 @@ export class Rounded implements Outline {
       r2sy,
       s.x,
       r2sy,
-      ...sd(
-        p,
-        [s.x, r2sy + o.y, rsx, r2sy + o.y],
-        [s.x, r2sy - o.y, rsx, r2sy - o.y],
-        [s.x, r2sy, rsx, r2sy],
-      ),
+      ...horizontalInsert(p, 'down', r2sy, r2sy + o.y, r2sy - o.y, s.x, rsx),
       rsx,
       r2sy,
       rsx,
@@ -266,12 +307,7 @@ export class Rounded implements Outline {
       rsy,
       r2sx,
       rsy,
-      ...sr(
-        p,
-        [r2sx + o.x, rsy, r2sx + o.x, s.y],
-        [r2sx - o.x, rsy, r2sx - o.x, s.y],
-        [r2sx, rsy, r2sx, s.y],
-      ),
+      ...verticalInsert(p, 'right', r2sx, r2sx + o.x, r2sx - o.x, rsy, s.y),
       r2sx,
       s.y,
       r2sx,
@@ -287,7 +323,7 @@ export class Rounded implements Outline {
       0,
       rsx,
       0,
-      ...su(p, [rsx, -o.y, s.x, -o.y], [rsx, o.y, s.x, o.y], [rsx, 0, s.x, 0]),
+      ...horizontalInsert(p, 'up', 0, -o.y, o.y, rsx, s.x),
       s.x,
       0,
       s.x,

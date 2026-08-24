@@ -757,6 +757,19 @@ describe('piece', () => {
       expect(piece.inserts).toEqual([Tab, Tab, Slot, Tab]);
     });
 
+    it('can import piece shape', () => {
+      const piece = Piece.import({
+        centralAnchor: null,
+        structure: 'T---',
+        metadata: {},
+        shape: { right: { offset: 0.1, width: 0.9, depth: 1.05 } },
+      });
+
+      expect(piece.shape).toEqual({
+        right: { offset: 0.1, width: 0.9, depth: 1.05 },
+      });
+    });
+
     it('can import piece with connections - which are ignored', () => {
       const piece = Piece.import({
         centralAnchor: { x: 2, y: 3 },
@@ -814,6 +827,20 @@ describe('piece', () => {
         connections: { right: null, down: null, left: null, up: null },
         metadata: { foo: 2 },
         size: { radius: { x: 4, y: 4 } },
+      });
+    });
+
+    it('can export piece shape', () => {
+      const piece = new Piece({ right: Tab }, {
+        shape: { right: { offset: 0.1, width: 0.9, depth: 1.05 } },
+      });
+
+      expect(piece.export()).toEqual({
+        centralAnchor: null,
+        structure: 'T---',
+        connections: { right: null, down: null, left: null, up: null },
+        metadata: {},
+        shape: { right: { offset: 0.1, width: 0.9, depth: 1.05 } },
       });
     });
 

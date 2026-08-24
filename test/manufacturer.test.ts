@@ -248,4 +248,41 @@ describe('manufacturer', () => {
     expect(puzzle.pieces[0].right).toBe(Tab);
     expect(puzzle.pieces[1].left).toBe(Slot);
   });
+
+  it('assigns deterministic compatible shape profiles to generated seams', () => {
+    const manufacturer = new Manufacturer();
+    manufacturer.withDimensions(2, 2);
+    const puzzle = manufacturer.build();
+    const [a, b, c, d] = puzzle.pieces;
+
+    expect(a.shape.right).toEqual(b.shape.left);
+    expect(a.shape.down).toEqual(c.shape.up);
+    expect(b.shape.down).toEqual(d.shape.up);
+    expect(c.shape.right).toEqual(d.shape.left);
+    expect(a.shape.right).not.toEqual(a.shape.down);
+  });
+
+  it('can disable generated piece shape variation', () => {
+    const manufacturer = new Manufacturer();
+    manufacturer.withDimensions(2, 1);
+    manufacturer.withPieceShapeVariation(false);
+    const puzzle = manufacturer.build();
+
+    expect(puzzle.pieces[0].shape).toEqual({});
+    expect(puzzle.pieces[1].shape).toEqual({});
+  });
+
+  it('uses configured shape variation bounds', () => {
+    const manufacturer = new Manufacturer();
+    manufacturer.withDimensions(2, 1);
+    manufacturer.withPieceShapeVariation({ offset: 0, width: 0, depth: 0 });
+    const puzzle = manufacturer.build();
+
+    expect(puzzle.pieces[0].shape.right).toEqual({
+      offset: 0,
+      width: 1,
+      depth: 1,
+    });
+    expect(puzzle.pieces[1].shape.left).toEqual(puzzle.pieces[0].shape.right);
+  });
 });

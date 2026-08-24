@@ -10,6 +10,7 @@ import type { ImageLike } from './image-metadata';
 import type { Insert } from './insert';
 import type { Orthogonal } from './prelude';
 import type Puzzle from './puzzle';
+import type { PieceShape } from './shape';
 import type { Size } from './size';
 import type { Vector } from './vector';
 import { anchor, Anchor } from './anchor';
@@ -82,6 +83,7 @@ export interface PieceConfig {
   centralAnchor?: Vector;
   size?: Size;
   metadata?: Partial<PieceMetadata>;
+  shape?: PieceShape;
 }
 
 /**
@@ -98,6 +100,7 @@ export interface PieceDump {
   centralAnchor: Vector | null;
   size?: { radius: Vector };
   metadata: Partial<PieceMetadata>;
+  shape?: PieceShape;
   connections?: Orthogonal<PieceConnectionDump | null | undefined>;
   structure: string;
 }
@@ -115,6 +118,7 @@ export default class Piece {
   left: Insert;
   right: Insert;
   metadata: PieceMetadata;
+  shape: PieceShape;
   centralAnchor!: Anchor | null;
   _size: Size | null;
   puzzle!: Puzzle;
@@ -149,6 +153,7 @@ export default class Piece {
     this.left = left;
     this.right = right;
     this.metadata = {} as PieceMetadata;
+    this.shape = {};
     this.centralAnchor = null;
     this._size = null;
     this.configure(config);
@@ -170,6 +175,9 @@ export default class Piece {
     }
     if (config.size) {
       this.resize(config.size);
+    }
+    if (config.shape) {
+      this.shape = config.shape;
     }
   }
 
@@ -734,6 +742,9 @@ export default class Piece {
     if (this._size) {
       base.size = { radius: this._size.radius };
     }
+    if (Object.keys(this.shape).length > 0) {
+      base.shape = this.shape;
+    }
     return compact
       ? base
       : Object.assign(base, {
@@ -754,6 +765,7 @@ export default class Piece {
       centralAnchor: dump.centralAnchor ?? undefined,
       metadata: dump.metadata,
       size: dump.size as Size | undefined,
+      shape: dump.shape,
     });
   }
 }

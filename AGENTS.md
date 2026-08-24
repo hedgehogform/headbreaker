@@ -13,8 +13,8 @@ bun run test:watch    # watch mode
 bun run typecheck     # tsc --noEmit
 bun run lint          # ESLint
 bun run lint:fix      # auto-fix ESLint
-bun run build         # tsup: CJS + ESM → dist/, IIFE → docs/public/js/
-bun run all           # typecheck → test → build (full CI flow)
+bun run build         # tsdown: CJS + ESM → dist/, IIFE → docs/public/js/
+bun run all           # typecheck → vitest → build (full CI flow)
 ```
 
 ## Architecture
@@ -68,7 +68,7 @@ bun run all           # typecheck → test → build (full CI flow)
 
 ## Build Outputs
 
-tsup produces two builds:
+tsdown produces two builds:
 1. **Library** (CJS + ESM) → `dist/` with `.d.ts` declarations; `konva` is external
 2. **Browser bundle** (IIFE) → `docs/public/js/headbreaker.js`; konva bundled in
 

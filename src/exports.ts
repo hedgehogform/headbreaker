@@ -44,6 +44,7 @@ export {
 export type { InsertsGenerator } from './sequence';
 
 export * as generators from './sequence';
+export type { EdgeProfile, PieceShape, ShapeVariationOptions, Side } from './shape';
 export * as Shuffler from './shuffler';
 export { diameter, radius } from './size';
 export type { Size } from './size';

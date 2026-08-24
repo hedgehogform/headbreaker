@@ -575,3 +575,28 @@ describe('rounded', () => {
     expect(vertical.referenceInsertAxisLength({ x: 80, y: 120 })).toBe(120);
   });
 });
+
+describe('shape variation', () => {
+  it('changes classic insert anchor positions without changing uniform pieces', () => {
+    const uniform = new Piece({ right: Tab });
+    const varied = new Piece({ right: Tab }, {
+      shape: { right: { offset: 0.25, width: 1, depth: 0.8 } },
+    });
+
+    expect(Classic.draw(varied, 5)).not.toEqual(Classic.draw(uniform, 5));
+    expect(Classic.draw(new Piece({ right: Tab }), 5)).toEqual(
+      Classic.draw(uniform, 5),
+    );
+  });
+
+  it('changes rounded insert width, depth, and center', () => {
+    const uniform = new Piece({ down: Tab });
+    const varied = new Piece({ down: Tab }, {
+      shape: { down: { offset: -0.2, width: 0.75, depth: 0.9 } },
+    });
+
+    expect(new Rounded().draw(varied, 150)).not.toEqual(
+      new Rounded().draw(uniform, 150),
+    );
+  });
+});
