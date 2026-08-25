@@ -2,7 +2,7 @@
 
 # :jigsaw: :exploding_head: Headbreaker
 
-> Jigsaw Puzzles Framework written in TypeScript — v4.0.7
+> Jigsaw Puzzles Framework written in TypeScript — v4.0.8
 
 `headbreaker` - a Spanish pun for _rompecabezas_ - is a TypeScript framework for building all kinds of jigsaw puzzles.
 
