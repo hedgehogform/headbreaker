@@ -2,7 +2,7 @@
 
 # :jigsaw: :exploding_head: Headbreaker
 
-> Jigsaw Puzzles Framework written in TypeScript — v4.0
+> Jigsaw Puzzles Framework written in TypeScript — v4.0.7
 
 `headbreaker` - a Spanish pun for _rompecabezas_ - is a TypeScript framework for building all kinds of jigsaw puzzles.
 
@@ -32,6 +32,9 @@
 ## <a id="installing"></a>:package: Installing
 
 ```bash
+npm install headbreaker-ts
+
+# or, with Bun
 bun add headbreaker-ts
 
 # optional: add konva if you want to use it as the rendering backend
