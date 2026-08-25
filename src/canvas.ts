@@ -17,6 +17,7 @@ import type { Outline } from './outline';
 import type { LabelMetadata, PieceMetadata } from './piece';
 import type Piece from './piece';
 import type { InsertsGenerator } from './sequence';
+import type { ShapeVariationOptions } from './shape';
 import type { Size } from './size';
 import type { ValidationListener, Validator } from './validator';
 import type { Vector } from './vector';
@@ -322,6 +323,7 @@ export default class Canvas {
    * @param {number} [options.verticalPiecesCount] - Number of rows. Defaults to `5`.
    * @param {InsertsGenerator} [options.insertsGenerator] - Inserts generator. Defaults to {@link twoAndTwo}.
    * @param {CanvasMetadata[]} [options.metadata] - Per-piece metadata.
+   * @param {ShapeVariationOptions | false} [options.shapeVariation] - Per-edge outline variation. Pass `false` for legacy uniform outlines.
    * @returns {void}
    */
   autogenerate({
@@ -329,16 +331,19 @@ export default class Canvas {
     verticalPiecesCount = 5,
     insertsGenerator = twoAndTwo,
     metadata = [],
+    shapeVariation = {},
   }: {
     horizontalPiecesCount?: number;
     verticalPiecesCount?: number;
     insertsGenerator?: InsertsGenerator;
     metadata?: CanvasMetadata[];
+    shapeVariation?: ShapeVariationOptions | false;
   } = {}): void {
     const manufacturer = new Manufacturer();
     manufacturer.withDimensions(horizontalPiecesCount, verticalPiecesCount);
     manufacturer.withInsertsGenerator(insertsGenerator);
     manufacturer.withMetadata(metadata);
+    manufacturer.withPieceShapeVariation(shapeVariation);
     this.autogenerateWithManufacturer(manufacturer);
   }
 

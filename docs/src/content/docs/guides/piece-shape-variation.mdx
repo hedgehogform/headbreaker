@@ -1,0 +1,83 @@
+---
+title: Piece Shape Variation
+description: Configure the generated tab and slot shapes used by automatic puzzles.
+draft: false
+---
+
+Automatically generated puzzles use deterministic shape variation by default. Each internal seam receives an `offset`, `width`, and `depth` profile so neighboring pieces still match, but the outlines are less uniform.
+
+The same grid and settings always produce the same shape profiles. This keeps generated puzzles reproducible and lets exported puzzles preserve the rendered outlines when they are imported again.
+
+## Canvas generation
+
+Use `shapeVariation` when calling `Canvas.autogenerate()`. Omit it to use the defaults, pass numeric bounds for subtler or stronger variation, or pass `false` to restore legacy uniform outlines.
+
+```javascript
+const canvas = new headbreaker.Canvas('puzzle', {
+  width: 800,
+  height: 650,
+  pieceSize: 100,
+  proximity: 20,
+  borderFill: 10,
+  lineSoftness: 0.18,
+});
+
+canvas.autogenerate({
+  horizontalPiecesCount: 6,
+  verticalPiecesCount: 5,
+  shapeVariation: {
+    offset: 0.08,
+    width: 0.06,
+    depth: 0.05,
+  },
+});
+
+canvas.shuffle();
+canvas.draw();
+```
+
+## Headless generation
+
+When you build a puzzle with `Manufacturer`, configure the same behavior with `withPieceShapeVariation()`.
+
+```javascript
+import { Manufacturer } from 'headbreaker-ts';
+
+const manufacturer = new Manufacturer();
+manufacturer.withDimensions(6, 5);
+manufacturer.withPieceShapeVariation({
+  offset: 0.08,
+  width: 0.06,
+  depth: 0.05,
+});
+
+const puzzle = manufacturer.build();
+```
+
+## Options
+
+`offset` controls how far the tab or slot center can move along the edge. It defaults to `0.12`.
+
+`width` controls how much the tab or slot width can vary around `1`. It defaults to `0.1`.
+
+`depth` controls how much the tab or slot depth can vary around `1`. It defaults to `0.08`.
+
+Set an option to `0` to keep that part of the profile uniform:
+
+```javascript
+canvas.autogenerate({
+  horizontalPiecesCount: 4,
+  verticalPiecesCount: 3,
+  shapeVariation: { offset: 0, width: 0.05, depth: 0 },
+});
+```
+
+Disable generated shape profiles entirely when you need the old uniform outlines:
+
+```javascript
+canvas.autogenerate({
+  horizontalPiecesCount: 4,
+  verticalPiecesCount: 3,
+  shapeVariation: false,
+});
+```

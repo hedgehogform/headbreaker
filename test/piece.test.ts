@@ -174,12 +174,18 @@ describe('piece', () => {
     expect(piece.downAnchor).toEqual(anchor(0, 5));
   });
 
-  it('can check whether pieces are vertically close when overlapped', () => {
+  it.each([
+    { label: 'overlapped', location: [0, 0], forward: false, reverse: false },
+    { label: 'far away', location: [0, 20], forward: false, reverse: false },
+    { label: 'partially overlapped', location: [0, 2], forward: false, reverse: false },
+    { label: 'close', location: [0, 3], forward: true, reverse: false },
+  ] as const)('can check whether pieces are vertically close when $label', ({ location, forward, reverse }) => {
     const puzzle = new Puzzle();
     const a = puzzle.newPiece(); a.locateAt(0, 0);
-    const b = puzzle.newPiece(); b.locateAt(0, 0);
-    expect(a.verticallyCloseTo(b)).toBe(false);
-    expect(b.verticallyCloseTo(a)).toBe(false);
+    const b = puzzle.newPiece(); b.locateAt(...location);
+
+    expect(a.verticallyCloseTo(b)).toBe(forward);
+    expect(b.verticallyCloseTo(a)).toBe(reverse);
   });
 
   it('can check whether rectangular pieces are vertically close when overlapped', () => {
@@ -190,60 +196,18 @@ describe('piece', () => {
     expect(b.verticallyCloseTo(a)).toBe(false);
   });
 
-  it('can check whether pieces are horizontally close when overlapped', () => {
+  it.each([
+    { label: 'overlapped', location: [0, 0], forward: false, reverse: false },
+    { label: 'far away', location: [20, 0], forward: false, reverse: false },
+    { label: 'partially overlapped', location: [2, 0], forward: false, reverse: false },
+    { label: 'close', location: [3, 0], forward: true, reverse: false },
+  ] as const)('can check whether pieces are horizontally close when $label', ({ location, forward, reverse }) => {
     const puzzle = new Puzzle();
     const a = puzzle.newPiece(); a.locateAt(0, 0);
-    const b = puzzle.newPiece(); b.locateAt(0, 0);
-    expect(a.horizontallyCloseTo(b)).toBe(false);
-    expect(b.horizontallyCloseTo(a)).toBe(false);
-  });
+    const b = puzzle.newPiece(); b.locateAt(...location);
 
-  it('can check whether pieces are vertically close when far away', () => {
-    const puzzle = new Puzzle();
-    const a = puzzle.newPiece(); a.locateAt(0, 0);
-    const b = puzzle.newPiece(); b.locateAt(0, 20);
-    expect(a.verticallyCloseTo(b)).toBe(false);
-    expect(b.verticallyCloseTo(a)).toBe(false);
-  });
-
-  it('can check whether pieces are horizontally close when far away', () => {
-    const puzzle = new Puzzle();
-    const a = puzzle.newPiece(); a.locateAt(0, 0);
-    const b = puzzle.newPiece(); b.locateAt(20, 0);
-    expect(a.horizontallyCloseTo(b)).toBe(false);
-    expect(b.horizontallyCloseTo(a)).toBe(false);
-  });
-
-  it('can check whether pieces are vertically close when partially overlapped', () => {
-    const puzzle = new Puzzle();
-    const a = puzzle.newPiece(); a.locateAt(0, 0);
-    const b = puzzle.newPiece(); b.locateAt(0, 2);
-    expect(a.verticallyCloseTo(b)).toBe(false);
-    expect(b.verticallyCloseTo(a)).toBe(false);
-  });
-
-  it('can check whether pieces are horizontally close when partially overlapped', () => {
-    const puzzle = new Puzzle();
-    const a = puzzle.newPiece(); a.locateAt(0, 0);
-    const b = puzzle.newPiece(); b.locateAt(2, 0);
-    expect(a.horizontallyCloseTo(b)).toBe(false);
-    expect(b.horizontallyCloseTo(a)).toBe(false);
-  });
-
-  it('can check whether pieces are vertically close when close', () => {
-    const puzzle = new Puzzle();
-    const a = puzzle.newPiece(); a.locateAt(0, 0);
-    const b = puzzle.newPiece(); b.locateAt(0, 3);
-    expect(a.verticallyCloseTo(b)).toBe(true);
-    expect(b.verticallyCloseTo(a)).toBe(false);
-  });
-
-  it('can check whether pieces are horizontally close when close', () => {
-    const puzzle = new Puzzle();
-    const a = puzzle.newPiece(); a.locateAt(0, 0);
-    const b = puzzle.newPiece(); b.locateAt(3, 0);
-    expect(a.horizontallyCloseTo(b)).toBe(true);
-    expect(b.horizontallyCloseTo(a)).toBe(false);
+    expect(a.horizontallyCloseTo(b)).toBe(forward);
+    expect(b.horizontallyCloseTo(a)).toBe(reverse);
   });
 
   it('knows its positive inserts positions', () => {
@@ -757,6 +721,19 @@ describe('piece', () => {
       expect(piece.inserts).toEqual([Tab, Tab, Slot, Tab]);
     });
 
+    it('can import piece shape', () => {
+      const piece = Piece.import({
+        centralAnchor: null,
+        structure: 'T---',
+        metadata: {},
+        shape: { right: { offset: 0.1, width: 0.9, depth: 1.05 } },
+      });
+
+      expect(piece.shape).toEqual({
+        right: { offset: 0.1, width: 0.9, depth: 1.05 },
+      });
+    });
+
     it('can import piece with connections - which are ignored', () => {
       const piece = Piece.import({
         centralAnchor: { x: 2, y: 3 },
@@ -814,6 +791,20 @@ describe('piece', () => {
         connections: { right: null, down: null, left: null, up: null },
         metadata: { foo: 2 },
         size: { radius: { x: 4, y: 4 } },
+      });
+    });
+
+    it('can export piece shape', () => {
+      const piece = new Piece({ right: Tab }, {
+        shape: { right: { offset: 0.1, width: 0.9, depth: 1.05 } },
+      });
+
+      expect(piece.export()).toEqual({
+        centralAnchor: null,
+        structure: 'T---',
+        connections: { right: null, down: null, left: null, up: null },
+        metadata: {},
+        shape: { right: { offset: 0.1, width: 0.9, depth: 1.05 } },
       });
     });
 

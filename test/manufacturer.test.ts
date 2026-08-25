@@ -12,7 +12,7 @@ describe('manufacturer', () => {
     const puzzle = manufacturer.build();
     const first = puzzle.pieces[0];
 
-    expect(puzzle.pieces.length).toBe(1);
+    expect(puzzle.pieces).toHaveLength(1);
     expect(first.up).toBe(None);
     expect(first.right).toBe(None);
     expect(first.down).toBe(None);
@@ -30,7 +30,7 @@ describe('manufacturer', () => {
     manufacturer.withHeadAt(anchor(-3, 5));
     const puzzle = manufacturer.build();
 
-    expect(puzzle.pieces.length).toBe(1);
+    expect(puzzle.pieces).toHaveLength(1);
     expect(puzzle.head.centralAnchor).toEqual(anchor(-3, 5));
   });
 
@@ -43,7 +43,7 @@ describe('manufacturer', () => {
     const first = puzzle.pieces[0];
     const second = puzzle.pieces[1];
 
-    expect(puzzle.pieces.length).toBe(2);
+    expect(puzzle.pieces).toHaveLength(2);
     expect(first.up).toBe(None);
     expect(first.right).toBe(Tab);
     expect(first.down).toBe(None);
@@ -62,7 +62,7 @@ describe('manufacturer', () => {
     const puzzle = manufacturer.build();
 
     const [first, second, third] = puzzle.pieces;
-    expect(puzzle.pieces.length).toBe(3);
+    expect(puzzle.pieces).toHaveLength(3);
 
     expect(first.up).toBe(None);
     expect(first.right).toBe(Tab);
@@ -90,7 +90,7 @@ describe('manufacturer', () => {
     const puzzle = manufacturer.build();
 
     const [first, second] = puzzle.pieces;
-    expect(puzzle.pieces.length).toBe(2);
+    expect(puzzle.pieces).toHaveLength(2);
 
     expect(first.up).toBe(None);
     expect(first.right).toBe(None);
@@ -112,7 +112,7 @@ describe('manufacturer', () => {
     const puzzle = manufacturer.build();
 
     const [a, b, c, d, e, f] = puzzle.pieces;
-    expect(puzzle.pieces.length).toBe(6);
+    expect(puzzle.pieces).toHaveLength(6);
 
     expect(a.up).toBe(None);
     expect(a.right).toBe(Tab);
@@ -152,7 +152,7 @@ describe('manufacturer', () => {
     const puzzle = manufacturer.build();
     const [a, b, c, d] = puzzle.pieces;
 
-    expect(puzzle.pieces.length).toBe(4);
+    expect(puzzle.pieces).toHaveLength(4);
 
     expect(a.up).toBe(None);
     expect(a.right).toBe(Tab);
@@ -187,7 +187,7 @@ describe('manufacturer', () => {
     const puzzle = manufacturer.build();
     const [a, b, c, d, e, f] = puzzle.pieces;
 
-    expect(puzzle.pieces.length).toBe(6);
+    expect(puzzle.pieces).toHaveLength(6);
     expect(a.right).toBe(Tab);
     expect(b.right).toBe(Slot);
     expect(c.right).toBe(Tab);
@@ -247,5 +247,42 @@ describe('manufacturer', () => {
     const puzzle = manufacturer.build();
     expect(puzzle.pieces[0].right).toBe(Tab);
     expect(puzzle.pieces[1].left).toBe(Slot);
+  });
+
+  it('assigns deterministic compatible shape profiles to generated seams', () => {
+    const manufacturer = new Manufacturer();
+    manufacturer.withDimensions(2, 2);
+    const puzzle = manufacturer.build();
+    const [a, b, c, d] = puzzle.pieces;
+
+    expect(a.shape.right).toEqual(b.shape.left);
+    expect(a.shape.down).toEqual(c.shape.up);
+    expect(b.shape.down).toEqual(d.shape.up);
+    expect(c.shape.right).toEqual(d.shape.left);
+    expect(a.shape.right).not.toEqual(a.shape.down);
+  });
+
+  it('can disable generated piece shape variation', () => {
+    const manufacturer = new Manufacturer();
+    manufacturer.withDimensions(2, 1);
+    manufacturer.withPieceShapeVariation(false);
+    const puzzle = manufacturer.build();
+
+    expect(puzzle.pieces[0].shape).toEqual({});
+    expect(puzzle.pieces[1].shape).toEqual({});
+  });
+
+  it('uses configured shape variation bounds', () => {
+    const manufacturer = new Manufacturer();
+    manufacturer.withDimensions(2, 1);
+    manufacturer.withPieceShapeVariation({ offset: 0, width: 0, depth: 0 });
+    const puzzle = manufacturer.build();
+
+    expect(puzzle.pieces[0].shape.right).toEqual({
+      offset: 0,
+      width: 1,
+      depth: 1,
+    });
+    expect(puzzle.pieces[1].shape.left).toEqual(puzzle.pieces[0].shape.right);
   });
 });

@@ -102,6 +102,21 @@ And voilà! 🎊
 </script>
 ```
 
+Generated puzzles use deterministic, subtle per-edge shape variation by default. Both sides of a seam share the same profile, so matching pieces remain visually coherent while neighboring tabs and slots are no longer identical. You can tune or disable this behavior when generating a puzzle:
+
+```typescript
+canvas.autogenerate({
+  horizontalPiecesCount: 4,
+  verticalPiecesCount: 3,
+  shapeVariation: { offset: 0.08, width: 0.06, depth: 0.05 },
+})
+
+// restore legacy uniform outlines
+canvas.autogenerate({ shapeVariation: false })
+```
+
+For headless generation, call `manufacturer.withPieceShapeVariation(options)` or pass `false` to disable variation. The generated profile is exposed on `piece.shape`, is included in piece exports, and does not change insert matching or piece metadata.
+
 `Canvas` is a visual representation of a `Puzzle` and mirrors many of its common methods. If you need to access the underlying `Puzzle` object directly, use the `puzzle` accessor:
 
 ```typescript

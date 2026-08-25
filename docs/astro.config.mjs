@@ -23,6 +23,7 @@ export default defineConfig({
           label: 'Guides',
           items: [
             { label: 'Headless Puzzle', link: '/guides/headless/' },
+            { label: 'Piece Shape Variation', link: '/guides/piece-shape-variation/' },
             { label: 'React Integration', link: '/guides/react/' },
             { label: 'Vue Integration', link: '/guides/vue/' },
           ],
