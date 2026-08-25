@@ -113,7 +113,7 @@ describe('shuffler', () => {
       puzzle.newPiece({}, { centralAnchor: vector(10, 0) }),
     ];
     const result = Shuffler.random(100, 100)(pieces);
-    expect(result.length).toBe(2);
+    expect(result).toHaveLength(2);
     result.forEach((v) => {
       expect(v.x).toBeGreaterThanOrEqual(0);
       expect(v.x).toBeLessThan(100);

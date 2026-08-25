@@ -11,11 +11,13 @@ import type { PieceMetadata } from './piece';
 import type Piece from './piece';
 import type { Settings } from './puzzle';
 import type { InsertsGenerator } from './sequence';
+import type { EdgeProfile, ShapeVariationOptions } from './shape';
 import type { Vector } from './vector';
 import { anchor } from './anchor';
 import * as Metadata from './metadata';
 import Puzzle from './puzzle';
 import { fixed, InsertSequence } from './sequence';
+import { cloneProfile, edgeProfile } from './shape';
 
 /**
  * Builder that produces a {@link Puzzle} from a grid configuration:
@@ -41,12 +43,15 @@ export default class Manufacturer {
   width!: number;
   /** Number of rows. Set via {@link Manufacturer#withDimensions}. */
   height!: number;
+  /** Options for deterministic per-edge shape variation. `false` disables it. */
+  shapeVariation: ShapeVariationOptions | false;
 
   constructor() {
     this.insertsGenerator = fixed;
     this.metadata = [];
     this.headAnchor = null;
     this.structure = {};
+    this.shapeVariation = {};
   }
 
   /**
@@ -102,6 +107,19 @@ export default class Manufacturer {
   }
 
   /**
+   * Configures deterministic per-edge shape variation for generated pieces.
+   *
+   * Pass `false` to restore legacy uniform outlines, or pass numeric bounds
+   * for subtle offset/width/depth variation.
+   *
+   * @param {ShapeVariationOptions | false} variation - Variation options, or `false`.
+   * @returns {void} Nothing.
+   */
+  withPieceShapeVariation(variation: ShapeVariationOptions | false = {}): void {
+    this.shapeVariation = variation;
+  }
+
+  /**
    * Builds the {@link Puzzle}, populating it with pieces laid out on a
    * regular `width × height` grid.
    *
@@ -124,6 +142,8 @@ export default class Manufacturer {
           puzzle,
           horizontalSequence,
           verticalSequence,
+          x,
+          y,
         );
         piece.centerAround(positioner.naturalAnchor(x, y));
       }
@@ -153,13 +173,40 @@ export default class Manufacturer {
     puzzle: Puzzle,
     horizontalSequence: InsertSequence,
     verticalSequence: InsertSequence,
+    x: number,
+    y: number,
   ): Piece {
-    return puzzle.newPiece({
+    const piece = puzzle.newPiece({
       left: horizontalSequence.previousComplement(),
       up: verticalSequence.previousComplement(),
       right: horizontalSequence.current(this.width),
       down: verticalSequence.current(this.height),
     });
+    if (this.shapeVariation !== false) {
+      piece.shape = this._shapeFor(x, y);
+    }
+    return piece;
+  }
+
+  private _shapeFor(
+    x: number,
+    y: number,
+  ): Partial<Record<'left' | 'up' | 'right' | 'down', EdgeProfile>> {
+    const shape: Partial<Record<'left' | 'up' | 'right' | 'down', EdgeProfile>> = {};
+    const options = this.shapeVariation || {};
+    if (x > 0) {
+      shape.left = cloneProfile(edgeProfile(x, y, 'vertical', options));
+    }
+    if (x < this.width - 1) {
+      shape.right = cloneProfile(edgeProfile(x + 1, y, 'vertical', options));
+    }
+    if (y > 0) {
+      shape.up = cloneProfile(edgeProfile(x, y, 'horizontal', options));
+    }
+    if (y < this.height - 1) {
+      shape.down = cloneProfile(edgeProfile(x, y + 1, 'horizontal', options));
+    }
+    return shape;
   }
 }
 
@@ -198,7 +245,7 @@ class Positioner {
    *
    * @param {number} x - Column index.
    * @param {number} y - Row index.
-   * @returns {Anchor}
+   * @returns {Anchor} The piece anchor in world-space.
    */
   naturalAnchor(x: number, y: number): Anchor {
     return anchor(

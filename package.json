@@ -27,11 +27,11 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsdown --config tsdown.config.mts",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
-    "all": "bun run typecheck && bun test && bun run build",
+    "all": "bun run typecheck && bun run test && bun run build",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "publish:npm": "bun run build && bun publish --access public",
@@ -40,18 +40,18 @@
     "version:major": "npm version major"
   },
   "optionalDependencies": {
-    "konva": "^10.0.0"
+    "konva": "^10.3.1"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^8.2.0",
-    "@vitest/coverage-v8": "^4.1.4",
+    "@antfu/eslint-config": "^8.3.0",
+    "@vitest/coverage-v8": "^4.1.11",
     "canvas": "^3.2.3",
-    "eslint": "^10.2.1",
-    "jiti": "^2.6.1",
-    "jsdom": "^29.0.2",
-    "tsup": "^8.5.1",
+    "eslint": "^10.9.0",
+    "jiti": "^2.7.0",
+    "jsdom": "^29.1.1",
+    "tsdown": "^0.22.14",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.58.2",
-    "vitest": "^4.1.4"
+    "typescript-eslint": "^8.67.0",
+    "vitest": "^4.1.11"
   }
 }

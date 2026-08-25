@@ -74,26 +74,26 @@ describe('puzzle', () => {
   it('shuffles connected puzzle', () => {
     puzzle.autoconnect();
     puzzle.shuffle(100, 100);
-    expect(puzzle.pieces.length).toBe(4);
+    expect(puzzle.pieces).toHaveLength(4);
   });
 
   it('shuffles disconnected puzzle', () => {
     puzzle.shuffle(100, 100);
-    expect(puzzle.pieces.length).toBe(4);
+    expect(puzzle.pieces).toHaveLength(4);
   });
 
   it('connects connected puzzle after shuffle', () => {
     puzzle.autoconnect();
     expect(puzzle.connected).toBe(true);
     puzzle.shuffleWith(Shuffler.noop);
-    expect(puzzle.pieces.length).toBe(4);
+    expect(puzzle.pieces).toHaveLength(4);
     expect(puzzle.connected).toBe(true);
   });
 
   it('connects disconnected puzzle after shuffle', () => {
     expect(puzzle.connected).toBe(false);
     puzzle.shuffleWith(Shuffler.noop);
-    expect(puzzle.pieces.length).toBe(4);
+    expect(puzzle.pieces).toHaveLength(4);
     expect(puzzle.connected).toBe(true);
   });
 
@@ -101,7 +101,7 @@ describe('puzzle', () => {
     puzzle.autoconnect();
     puzzle.translate(10, 10);
     const [a, b, c, d] = puzzle.pieces;
-    expect(puzzle.pieces.length).toBe(4);
+    expect(puzzle.pieces).toHaveLength(4);
     expect(a.rightConnection).toBe(b);
     expect(b.rightConnection).toBe(c);
     expect(c.downConnection).toBe(d);
@@ -109,7 +109,7 @@ describe('puzzle', () => {
 
   it('translates disconnected puzzle', () => {
     puzzle.translate(10, 10);
-    expect(puzzle.pieces.length).toBe(4);
+    expect(puzzle.pieces).toHaveLength(4);
     const [a, b, c] = puzzle.pieces;
     expect(a.rightConnection).toBeNull();
     expect(b.rightConnection).toBeNull();
@@ -187,7 +187,10 @@ describe('puzzle', () => {
 
       it('can be validated using a validator', () => {
         return new Promise<void>((resolve) => {
-          puzzle.onValid(() => resolve());
+          puzzle.onValid(() => {
+            expect(puzzle.isValid()).toBe(true);
+            resolve();
+          });
           puzzle.validate();
           puzzle.head.drag(10, 10);
           puzzle.validate();
@@ -295,7 +298,7 @@ describe('puzzle', () => {
 
   it('imports', () => {
     const imported = Puzzle.import(puzzle.export());
-    expect(imported.pieces.length).toBe(puzzle.pieces.length);
+    expect(imported.pieces).toHaveLength(puzzle.pieces.length);
     expect(imported.pieceDiameter).toEqual(puzzle.pieceDiameter);
     expect(imported.proximity).toBe(puzzle.proximity);
     expect(imported.metadata).toEqual(puzzle.metadata);
@@ -341,7 +344,7 @@ describe('puzzle', () => {
     const events: [Piece, number, number][] = [];
     puzzle.onTranslate((piece, dx, dy) => events.push([piece, dx, dy]));
     puzzle.translate(5, 7);
-    expect(events.length).toBe(puzzle.pieces.length);
+    expect(events).toHaveLength(puzzle.pieces.length);
     expect(events.every(([, dx, dy]) => dx === 5 && dy === 7)).toBe(true);
   });
 
